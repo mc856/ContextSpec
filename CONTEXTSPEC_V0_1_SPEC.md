@@ -74,24 +74,44 @@ A minimal v0.1 project uses this layout:
       acceptance.md
       decisions.md
       reviews/
+        <role>.md
+      packs/
+        <role>-<task>.md
       retro.md
 
   projects/
     web-app.md
 
   memory/
-    lessons.md
-    experiment-results.md
-    customer-feedback.md
-    anti-patterns.md
+    README.md
 
   sources/
-    personal-knowledge.md
+    <curated-reference>.md
 
   registry.yaml
 ```
 
-All paths in `registry.yaml` are resolved relative to `.contextspec/`, except explicit absolute paths and `~` paths in `sources`.
+Notes on the layout:
+
+1. `memory/` only ships with a `README.md` placeholder describing the schema. Files like `lessons.md`, `experiment-results.md`, `customer-feedback.md`, and `anti-patterns.md` are created on demand when the user actually has content. v0.1 must not generate empty memory files at `init`.
+2. `.contextspec/sources/*.md` holds curated reference notes that may link into external sources via the `source://` syntax in §5.4. It is not the same thing as the top-level `sources:` map in `registry.yaml`, which declares external roots; see §8.2.
+3. `initiatives/<id>/reviews/<role>.md` is where role review outputs are written. The filename is always `<role>.md`.
+4. `initiatives/<id>/packs/<role>-<task>.md` is where compiled context packs are written. See §7.2.
+
+### 3.1 Path Resolution
+
+| Field | Resolved relative to |
+|---|---|
+| `context.includes[*]` | `.contextspec/` |
+| `roles.<id>.file` | `.contextspec/` |
+| `roles.<id>.includes[*]` | `.contextspec/` |
+| `domains.<id>.includes[*]` | `.contextspec/` |
+| `projects.<id>.includes[*]` | `.contextspec/` |
+| `projects.<id>.repo` | `.contextspec/` (i.e. `../web-app` means a sibling of the project root containing `.contextspec/`) |
+| `initiatives.<id>.path` | `.contextspec/` |
+| `sources.<id>.path` | The user's home (supports `~`) or absolute paths only |
+
+Absolute paths and `~` paths are allowed only for `sources.<id>.path`. All other fields must use paths relative to `.contextspec/`.
 
 ---
 
@@ -190,7 +210,7 @@ initiatives:
 | `roles.<id>.file` | Yes | Role definition file. |
 | `roles.<id>.includes` | No | Extra files loaded for this role. |
 | `domains.<id>.includes` | No | Domain files loaded when an initiative references the domain. |
-| `projects.<id>.repo` | No | Relative or absolute repo path. |
+| `projects.<id>.repo` | No | Repo path. Resolved relative to `.contextspec/` (see §3.1). Absolute paths allowed. |
 | `projects.<id>.includes` | No | Project constraint files. |
 | `initiatives.<id>.path` | Yes, when initiative is registered | Initiative directory path. |
 | `initiatives.<id>.roles` | No | Roles relevant to the initiative. |
@@ -199,7 +219,16 @@ initiatives:
 | `sources.<id>.type` | No | v0.1 only defines `markdown_dir`. |
 | `sources.<id>.mode` | No | Defaults to `reference_only`. |
 
-### 4.5 Missing File Behavior
+### 4.5 Include Resolution
+
+When a context pack is compiled, multiple `includes` lists may name the same file. v0.1 uses these rules:
+
+1. Includes are **additive**. `roles.<id>.includes` does not replace `context.includes`; it is appended after.
+2. Duplicates are **deduplicated** by resolved path. The first occurrence wins; later duplicates are silently dropped.
+3. Within a single list, files are loaded in **declaration order**. Across lists, the order follows §5.3 (global → role file → role includes → domain → initiative → project → memory → source references).
+4. Because of dedup, role/domain/memory `includes` may freely re-list global files for clarity without affecting output.
+
+### 4.6 Missing File Behavior
 
 v0.1 should use conservative file handling:
 
@@ -279,6 +308,22 @@ Each included file should be listed in `## Sources` using its path relative to `
 
 External source paths should be listed only when they are explicitly allowed by `sources.*.include` and not excluded by `sources.*.exclude`.
 
+### 5.5 Source Reference Syntax
+
+External knowledge is referenced from curated `.contextspec/` files via Markdown links using the `source://` URI scheme:
+
+```md
+See [the original onboarding interview notes](source://personal_knowledge_base/Customers/2026-04-onboarding.md) for raw quotes.
+```
+
+Rules:
+
+1. The host segment (`personal_knowledge_base` above) must match a key in `registry.yaml` under `sources:`.
+2. The path segment is resolved relative to that source's `path`.
+3. The pack compiler must verify that the resolved path matches the source's `include` patterns and is not in `exclude`. Disallowed references emit a warning and are dropped from `## Sources`.
+4. Allowed references are listed in `## Sources` as `source://<id>/<path>` (not as absolute filesystem paths).
+5. v0.1 never inlines external content. `source://` links remain links; the pack compiler must not copy file contents from external sources.
+
 ---
 
 ## 6. Role Template Format
@@ -345,6 +390,23 @@ retro.md
 | `decisions.md` | Decisions made during the initiative. |
 | `retro.md` | Post-completion learning and proposed memory updates. |
 
+`reviews/` holds role review outputs. v0.1 uses the filename convention `reviews/<role>.md` (e.g. `reviews/growth.md`, `reviews/qa.md`). Multiple reviews from the same role overwrite the file by default; historical versions are preserved through git.
+
+### 7.2 Pack Output Location
+
+`contextspec pack --role <role> --initiative <name> --task <task>` writes the compiled context pack to:
+
+```text
+.contextspec/initiatives/<name>/packs/<role>-<task>.md
+```
+
+Rules:
+
+1. If `--task` is omitted, the default task is `review`, producing `<role>-review.md`.
+2. Existing pack files are overwritten without prompting. Packs are derived artifacts.
+3. Packs **should be committed** to git in v0.1 so reviewers can diff them. Users who prefer not to commit derived files may add `.contextspec/initiatives/*/packs/` to `.gitignore`.
+4. The CLI may also print the pack to stdout via a `--stdout` flag (deferred); v0.1 only requires the file output.
+
 ---
 
 ## 8. Source Reference Rules
@@ -361,6 +423,28 @@ v0.1 source behavior:
 6. Any proposed import from a source must be user-confirmed before it becomes memory, domain context, or global context.
 
 A future version may add import helpers, but v0.1 only defines the boundary.
+
+### 8.1 `context-map.md` vs `registry.yaml` initiatives
+
+Both `registry.yaml` and `initiatives/<id>/context-map.md` describe what an initiative depends on. Their roles are different and must not be conflated:
+
+| Artifact | Audience | Purpose |
+|---|---|---|
+| `registry.yaml > initiatives.<id>` | Pack compiler (machine) | Declares which roles, domains, and projects the pack loader should attach. |
+| `initiatives/<id>/context-map.md` | Humans and reviewing agents | Narrative explaining *why* those roles, domains, projects, memory items, and sources are relevant, and noting items that were considered and excluded. |
+
+The compiler reads only `registry.yaml`. `context-map.md` is included verbatim into the pack's `## Initiative Context` section.
+
+### 8.2 `registry.sources` vs `.contextspec/sources/`
+
+These two are easy to confuse. v0.1 keeps them strictly separate:
+
+| Name | What it is | Owned by |
+|---|---|---|
+| `registry.yaml > sources` | Machine-readable declaration of external roots (e.g. an Obsidian vault path) with `include` / `exclude` globs and `mode`. | The protocol. |
+| `.contextspec/sources/*.md` | Human-curated reference notes inside the project that link out via `source://` (§5.5). | The user. |
+
+A `source://<id>/...` link only resolves if `<id>` exists in `registry.yaml > sources`. The `.contextspec/sources/` directory is optional; users may choose to embed `source://` links anywhere in `.contextspec/` instead.
 
 ---
 
@@ -448,4 +532,24 @@ Before implementing the CLI, create a hand-written example project at:
 examples/improve-team-invite-conversion/
 ```
 
-The example should include a complete `.contextspec/` directory and at least one generated context pack. This validates the protocol before code is written.
+The example should include a complete `.contextspec/` directory and at least one generated context pack under `initiatives/<id>/packs/`. This validates the protocol before code is written.
+
+---
+
+## 14. Changelog
+
+This changelog tracks substantive edits to the v0.1 protocol so downstream implementations can detect when assumptions change. Each entry should describe what changed and why, not who edited it.
+
+### 2026-05-07 — Protocol clarifications (pre-implementation)
+
+Clarified eight ambiguities surfaced while preparing the first hand-written example. No semantic changes that break the original spec; all edits are additive constraints that previously implicit decisions now make explicit.
+
+- §3 File Layout: `memory/` ships only with `README.md`; empty memory files are no longer auto-generated. Added `initiatives/<id>/packs/` and `reviews/<role>.md`.
+- §3.1 Path Resolution: new table specifying which fields are relative to `.contextspec/` and which allow absolute / `~` paths.
+- §4.4: `projects.<id>.repo` resolution rule made explicit.
+- §4.5 Include Resolution: includes are additive and deduplicated by resolved path; first occurrence wins.
+- §5.5 Source Reference Syntax: introduced the `source://<id>/<path>` Markdown link convention with allow/deny enforcement against `registry.sources`.
+- §7 Reviews filename convention fixed as `reviews/<role>.md`.
+- §7.2 Pack Output Location: packs land in `initiatives/<name>/packs/<role>-<task>.md`; default task is `review`; packs are committed by default.
+- §8.1: clarified that `context-map.md` is human narrative, while `registry.yaml > initiatives` is the machine-readable mapping consumed by the compiler.
+- §8.2: clarified that `registry.yaml > sources` (external roots) and `.contextspec/sources/*.md` (curated reference notes) are different objects.
