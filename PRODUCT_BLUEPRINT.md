@@ -137,11 +137,62 @@ ContextSpec 初版**不做**：
 
 > 把项目/组织上下文编译成 Claude Code / Codex 可用的角色化 context pack 和工作流命令。
 
+## 4.1 知识库边界
+
+个人开发者通常已经有自己的知识库，例如：
+
+```text
+Obsidian
+Notion
+Logseq
+Apple Notes
+本地 Markdown
+项目 docs
+客户访谈记录
+产品日记
+历史决策
+```
+
+ContextSpec 需要考虑这些资料，因为它们经常包含产品原则、客户反馈、失败实验、工程偏好和历史决策。
+
+但 ContextSpec **不应该做个人知识库**。
+
+更准确的边界是：
+
+> Personal knowledge bases store raw knowledge. ContextSpec curates agent-ready context.
+
+中文：
+
+> 个人知识库存原始知识，ContextSpec 管 agent 可执行上下文。
+
+所以 ContextSpec 可以：
+
+```text
+引用个人知识库里的资料
+从笔记和文档中提取候选上下文
+把用户确认过的内容沉淀到 memory / domain / context
+在 context pack 中标注来源
+```
+
+但初版不做：
+
+```text
+笔记编辑器
+双链知识库
+全文搜索产品
+网页剪藏
+Notion / Obsidian 双向同步
+自动 RAG 平台
+原始文档长期归档系统
+```
+
+ContextSpec 的 source of truth 应该是经过筛选、压缩、可复用、适合 agent 执行任务前读取的上下文，而不是用户的全部原始知识。
+
 ---
 
 # 5. 核心概念
 
-ContextSpec 初版有 6 个核心对象。
+ContextSpec 初版有 6 个核心对象，外加 1 个轻量辅助对象。
 
 ---
 
@@ -364,6 +415,51 @@ Memory 里放：
 
 ---
 
+## 5.7 Source（轻量辅助对象）
+
+Source 用来声明外部资料来源，例如个人知识库、项目文档、客户访谈目录或历史决策文件。
+
+Source 不是新的知识库，也不是 ContextSpec 的核心工作流对象。它只回答：
+
+```text
+外部资料在哪里？
+哪些内容可以被引用？
+哪些内容不能读取？
+是否只读？
+是否允许导入摘要？
+```
+
+示例：
+
+```yaml
+sources:
+  personal_knowledge_base:
+    type: markdown_dir
+    path: ~/ObsidianVault
+    include:
+      - Product/**
+      - Customers/**
+      - Decisions/**
+    exclude:
+      - Daily/**
+      - Private/**
+    mode: reference_only
+```
+
+初版可以只在协议中预留 Source，不必实现复杂导入或同步。后续如果支持导入，也应该采用：
+
+```text
+扫描原始资料
+生成候选摘要
+标注来源
+用户确认
+写入 .contextspec/memory 或 .contextspec/domains
+```
+
+避免把未经审查的原始笔记直接污染 ContextSpec memory。
+
+---
+
 # 6. 推荐目录结构
 
 初版目录可以这样：
@@ -424,6 +520,9 @@ Memory 里放：
     customer-feedback.md
     anti-patterns.md
 
+  sources/
+    personal-knowledge.md
+
   registry.yaml
 ```
 
@@ -455,6 +554,19 @@ context:
     - principles.md
     - glossary.md
     - constraints.md
+
+sources:
+  personal_knowledge_base:
+    type: markdown_dir
+    path: ~/ObsidianVault
+    include:
+      - Product/**
+      - Customers/**
+      - Decisions/**
+    exclude:
+      - Daily/**
+      - Private/**
+    mode: reference_only
 
 roles:
   pm:
@@ -915,6 +1027,17 @@ cspec
 8. 团队成员管理
 ```
 
+## MVP 需要明确但不必实现
+
+```text
+1. 个人知识库边界
+2. 外部 source 的引用规则
+3. memory 的人工确认更新规则
+4. context pack 的来源标注
+```
+
+也就是说，v0.1 要回答“用户已有个人知识库怎么办”，但不需要实现 Notion sync、Obsidian plugin、向量搜索或大规模导入。
+
 ---
 
 # 14. 第一版用户体验
@@ -1269,7 +1392,32 @@ contextspec link-project ../backend
 
 ---
 
-## 缺失 7：名字还需要做可用性检查
+## 缺失 7：个人知识库与 Source 规则
+
+需要定义：
+
+```text
+个人知识库是否只读？
+外部 source 是否进入 registry.yaml？
+context pack 是否允许直接引用外部文件？
+导入时如何生成摘要和来源？
+memory 更新是否必须人工确认？
+哪些目录或标签默认排除？
+```
+
+初版建议：
+
+```text
+Source 只做 reference_only 协议预留
+不做自动同步
+不做向量检索
+不把原始笔记批量复制进 .contextspec
+只允许用户确认后的摘要进入 memory / domain / context
+```
+
+---
+
+## 缺失 8：名字还需要做可用性检查
 
 目前推荐名是：
 
@@ -1468,14 +1616,15 @@ Workflow: initiative → role review → handoff → implementation → QA → r
 
 还有缺失，但不是阻塞项。
 
-真正需要马上补齐的是这 5 个：
+真正需要马上补齐的是这 6 个：
 
 ```text
 1. Context Pack 格式
 2. Role 模板细节
 3. registry.yaml schema
 4. Claude Code / Codex 生成方式
-5. 一个真实项目的手工验证样例
+5. 个人知识库 / Source 边界
+6. 一个真实项目的手工验证样例
 ```
 
 下一步最适合做的不是继续扩愿景，而是直接写：
