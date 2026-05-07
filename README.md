@@ -22,3 +22,6 @@ Then use role-based commands like:
 
 ContextSpec is not a project management tool or a knowledge base.  
 It is a local-first context layer for AI coding workflows.
+
+Personal knowledge bases store raw knowledge. ContextSpec curates agent-ready context.
+It can reference or distill notes, docs, customer feedback, and decisions from tools like Obsidian, Notion, Logseq, or local Markdown, but its source of truth is reviewed, task-relevant context that can be compiled into role-based context packs.
