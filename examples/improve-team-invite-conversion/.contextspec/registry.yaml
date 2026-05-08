@@ -1,0 +1,66 @@
+version: 0.1
+
+context:
+  includes:
+    - context.md
+    - principles.md
+    - glossary.md
+    - constraints.md
+
+sources:
+  personal_knowledge_base:
+    type: markdown_dir
+    path: ~/ObsidianVault
+    include:
+      - Product/**
+      - Customers/**
+      - Decisions/**
+    exclude:
+      - Daily/**
+      - Private/**
+    mode: reference_only
+
+roles:
+  pm:
+    file: roles/pm.md
+    includes:
+      - memory/anti-patterns.md
+
+  growth:
+    file: roles/growth.md
+    includes:
+      - memory/experiment-results.md
+
+  engineer:
+    file: roles/engineer.md
+    includes:
+      - memory/anti-patterns.md
+
+# QA is intentionally not registered for this example. The protocol does not
+# require all four built-in roles to be mounted; users mount only what they use.
+
+domains:
+  onboarding:
+    includes:
+      - domains/onboarding/context.md
+      - domains/onboarding/flows.md
+      - domains/onboarding/metrics.md
+      - domains/onboarding/decisions.md
+
+projects:
+  web-app:
+    repo: ../web-app
+    includes:
+      - projects/web-app.md
+
+initiatives:
+  improve-team-invite-conversion:
+    path: initiatives/improve-team-invite-conversion
+    roles:
+      - pm
+      - growth
+      - engineer
+    domains:
+      - onboarding
+    projects:
+      - web-app
