@@ -58,6 +58,10 @@ contextspec create initiative q2-onboarding-pulse \
 
 # 3. Compile a context pack for a role.
 contextspec pack --role engineer --initiative q2-onboarding-pulse --task review
+
+# 4. Wire the project up to your coding agent.
+contextspec generate claude   # writes .claude/commands/<role>-<task>.md
+contextspec generate codex    # creates or updates AGENTS.md in place
 ```
 
 `pack` reads `.contextspec/registry.yaml`, resolves includes per spec §5.3, routes files to pack sections per §5.7, and writes to `.contextspec/initiatives/<name>/packs/<role>-<task>.md`. Pass `--stdout` to print to stdout instead.
@@ -83,7 +87,7 @@ npm run build
 npm test
 ```
 
-`generate claude` and `generate codex` are not implemented yet.
+`generate claude` writes idempotent slash commands per role (`pm-review`, `growth-review`, `engineer-handoff`, `engineer-review`, plus `context-status` and `context-retro`). `generate codex` writes a managed `## ContextSpec` section into `AGENTS.md`, marked with HTML comments so user-authored content above and below it survives subsequent regenerations.
 
 ## Planned v0.1
 

@@ -5,6 +5,16 @@ export type {
   CreateInitiativeOptions,
   CreateInitiativeResult,
 } from './createInitiative.js';
+export { generateClaude } from './generateClaude.js';
+export type {
+  GenerateClaudeOptions,
+  GenerateClaudeResult,
+} from './generateClaude.js';
+export { generateCodex } from './generateCodex.js';
+export type {
+  GenerateCodexOptions,
+  GenerateCodexResult,
+} from './generateCodex.js';
 export { loadRegistry } from './registry.js';
 export type {
   Registry,
