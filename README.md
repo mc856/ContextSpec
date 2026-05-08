@@ -48,15 +48,23 @@ Raw knowledge stays in existing tools. ContextSpec stores reviewed, structured c
 
 ## CLI (v0.1, in progress)
 
-The first command is the context pack compiler:
-
 ```bash
-contextspec pack --role <role> --initiative <name> [--task <task>] [--project <project>]
+# 1. Create a new .contextspec/ skeleton.
+contextspec init
+
+# 2. Create an initiative and register it in registry.yaml.
+contextspec create initiative q2-onboarding-pulse \
+  --domain onboarding --project web-app
+
+# 3. Compile a context pack for a role.
+contextspec pack --role engineer --initiative q2-onboarding-pulse --task review
 ```
 
-It reads `.contextspec/registry.yaml` from the current directory (or `--cwd`), resolves the included files per spec §5.3, routes them to pack sections per §5.7, and writes the result to `.contextspec/initiatives/<name>/packs/<role>-<task>.md`. Pass `--stdout` to print to stdout instead.
+`pack` reads `.contextspec/registry.yaml`, resolves includes per spec §5.3, routes files to pack sections per §5.7, and writes to `.contextspec/initiatives/<name>/packs/<role>-<task>.md`. Pass `--stdout` to print to stdout instead.
 
-Try it on the example:
+`create initiative` (or `create-initiative`) preserves comments and existing entries in `registry.yaml`.
+
+Try it on the example fixture:
 
 ```bash
 contextspec pack \
@@ -75,7 +83,7 @@ npm run build
 npm test
 ```
 
-`init`, `create initiative`, `generate claude`, and `generate codex` are not implemented yet.
+`generate claude` and `generate codex` are not implemented yet.
 
 ## Planned v0.1
 
