@@ -3,6 +3,8 @@ import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { cac } from 'cac';
 import { compilePack } from './compile.js';
 import { createInitiative } from './createInitiative.js';
+import { generateClaude } from './generateClaude.js';
+import { generateCodex } from './generateCodex.js';
 import { initContextSpec } from './init.js';
 import { loadRegistry } from './registry.js';
 
@@ -16,6 +18,12 @@ function preprocessArgv(argv: string[]): string[] {
   // argv[0] = node, argv[1] = bin entry; user tokens start at index 2.
   if (out[2] === 'create' && out[3] === 'initiative') {
     out.splice(2, 2, 'create-initiative');
+  }
+  if (out[2] === 'generate' && out[3] === 'claude') {
+    out.splice(2, 2, 'generate-claude');
+  }
+  if (out[2] === 'generate' && out[3] === 'codex') {
+    out.splice(2, 2, 'generate-codex');
   }
   return out;
 }
@@ -71,6 +79,53 @@ cli
       console.error(`error: ${(err as Error).message}`);
       process.exit(1);
     }
+  });
+
+cli
+  .command(
+    'generate-claude',
+    'Generate Claude Code slash commands under .claude/commands/.',
+  )
+  .option('--cwd <path>', 'project root (default: current directory)')
+  .option('--no-force', 'skip files that already exist instead of overwriting')
+  .action(async (options: GenerateClaudeCmdOptions) => {
+    const projectRoot = resolveCwd(options.cwd);
+    const registryPath = resolvePath(projectRoot, '.contextspec', 'registry.yaml');
+    if (!existsSync(registryPath)) {
+      console.error(
+        `error: no registry.yaml found at ${registryPath}. ` +
+          `Run \`contextspec init\` first.`,
+      );
+      process.exit(1);
+    }
+    const registry = loadRegistry(registryPath);
+    const r = generateClaude({
+      cwd: projectRoot,
+      registry,
+      force: options.force ?? true,
+    });
+    for (const f of r.written) console.error(`wrote .claude/commands/${f}`);
+    for (const f of r.skipped) console.error(`skipped (already exists): .claude/commands/${f}`);
+    console.error(`\nClaude Code slash commands written to ${r.commandsDir}`);
+  });
+
+cli
+  .command(
+    'generate-codex',
+    'Generate or update AGENTS.md for Codex.',
+  )
+  .option('--cwd <path>', 'project root (default: current directory)')
+  .action(async (options: GenerateCodexCmdOptions) => {
+    const projectRoot = resolveCwd(options.cwd);
+    if (!existsSync(resolvePath(projectRoot, '.contextspec', 'registry.yaml'))) {
+      console.error(
+        `error: no .contextspec/registry.yaml found in ${projectRoot}. ` +
+          `Run \`contextspec init\` first.`,
+      );
+      process.exit(1);
+    }
+    const r = generateCodex({ cwd: projectRoot });
+    console.error(`${r.action} ${r.agentsPath}`);
   });
 
 cli
@@ -163,6 +218,15 @@ interface CreateInitiativeCmdOptions {
   domain?: string | string[];
   project?: string | string[];
   force?: boolean;
+}
+
+interface GenerateClaudeCmdOptions {
+  cwd?: string;
+  force?: boolean;
+}
+
+interface GenerateCodexCmdOptions {
+  cwd?: string;
 }
 
 interface PackOptions {
