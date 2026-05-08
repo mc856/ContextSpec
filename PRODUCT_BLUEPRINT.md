@@ -460,6 +460,70 @@ sources:
 
 ---
 
+## 5.8 Context 与 Knowledge 的分层
+
+ContextSpec 需要区分 knowledge 和 context。
+
+Knowledge 是原材料。Context 是为了某个 agent、角色、任务而被筛选、结构化、压缩后的可执行信息。
+
+推荐分为 5 层：
+
+```text
+Raw Knowledge
+-> Curated Knowledge
+-> Structured Context
+-> Task Context
+-> Context Pack
+```
+
+这 5 层分别表示：
+
+```text
+Raw Knowledge
+  用户已有的个人知识库、客户访谈、会议记录、产品日记、研究资料。
+
+Curated Knowledge
+  经过用户确认、压缩后可复用的经验、原则、反馈、实验结果和决策。
+
+Structured Context
+  放入 .contextspec/ 的 context、role、domain、initiative、project、memory、source。
+
+Task Context
+  针对当前 role / task / initiative / project 选中的上下文子集。
+
+Context Pack
+  最终提供给 Claude Code / Codex 的上下文包。
+```
+
+核心原则是：
+
+> 不是所有知识都应该进入 ContextSpec，也不是所有 ContextSpec 内容都应该进入每次 context pack。
+
+放置规则可以简单理解为：
+
+```text
+原始资料留在 Source
+确认后的长期经验进入 Memory
+稳定产品事实进入 Context
+原则和红线进入 Principles / Constraints
+业务领域知识进入 Domain
+当前工作进入 Initiative
+代码仓库约束进入 Project
+角色判断方式进入 Role
+当前任务需要的内容才进入 Context Pack
+```
+
+这能避免两个常见问题：
+
+```text
+把 ContextSpec 变成另一个知识库
+把整个知识库塞进每一次 agent 会话
+```
+
+ContextSpec 的价值不在于保存更多知识，而在于把合适的上下文在合适的时机交给合适的角色和任务。
+
+---
+
 # 6. 推荐目录结构
 
 初版目录可以这样：
