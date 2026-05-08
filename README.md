@@ -36,6 +36,16 @@ It is a local-first context layer for AI coding workflows.
 Personal knowledge bases store raw knowledge. ContextSpec curates agent-ready context.
 It can reference or distill notes, docs, customer feedback, and decisions from tools like Obsidian, Notion, Logseq, or local Markdown, but its source of truth is reviewed, task-relevant context that can be compiled into role-based context packs.
 
+## Context layers
+
+ContextSpec treats knowledge as a pipeline:
+
+```text
+raw knowledge -> curated knowledge -> structured context -> task context -> context pack
+```
+
+Raw knowledge stays in existing tools. ContextSpec stores reviewed, structured context and compiles only task-relevant context into packs. See [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md) for the full taxonomy and placement rules.
+
 ## CLI (v0.1, in progress)
 
 The first command is the context pack compiler:

@@ -41,6 +41,111 @@ ContextSpec v0.1 may reference personal knowledge bases, but it does not manage 
 
 ---
 
+## 2.1 Context and Knowledge Taxonomy
+
+ContextSpec separates raw knowledge from agent-ready context.
+
+Knowledge is source material. Context is selected, structured, task-relevant knowledge prepared for a role and workflow.
+
+v0.1 uses five layers:
+
+```text
+Layer 0: Raw Knowledge
+Layer 1: Curated Knowledge
+Layer 2: Structured Context
+Layer 3: Task Context
+Layer 4: Compiled Context Pack
+```
+
+### Layer 0: Raw Knowledge
+
+Raw knowledge usually lives outside ContextSpec by default.
+
+Examples:
+
+- personal notes
+- customer interview transcripts
+- meeting notes
+- product journals
+- research docs
+- raw decision drafts
+
+Raw knowledge may be referenced through `sources`, but it is not automatically copied into `.contextspec/`.
+
+### Layer 1: Curated Knowledge
+
+Curated knowledge is reviewed, compressed, reusable knowledge that can become part of `.contextspec/`.
+
+Examples:
+
+- confirmed customer feedback
+- experiment results
+- lessons learned
+- product principles
+- engineering anti-patterns
+- stable business constraints
+
+Curated knowledge usually lives in:
+
+- `memory/`
+- `domains/`
+- `context.md`
+- `principles.md`
+- `constraints.md`
+
+### Layer 2: Structured Context
+
+Structured context is curated knowledge organized by purpose.
+
+| Category | Location | Purpose |
+|---|---|---|
+| Global context | `context.md`, `principles.md`, `glossary.md`, `constraints.md` | Product-wide facts, principles, terms, and constraints. |
+| Role context | `roles/*.md` | Responsibilities, review criteria, output contracts, and limits. |
+| Domain context | `domains/*` | Business-area flows, metrics, decisions, and constraints. |
+| Initiative context | `initiatives/*` | Current work, plans, tasks, acceptance, decisions, and retro. |
+| Project context | `projects/*.md` | Repo, stack, tests, deployment, and engineering constraints. |
+| Memory | `memory/*` | Confirmed long-term lessons, feedback, results, and anti-patterns. |
+| Source references | `sources/*` and `registry.yaml.sources` | External knowledge locations and reference boundaries. |
+
+### Layer 3: Task Context
+
+Task context is the selected subset of structured context needed for a specific role and task.
+
+Example:
+
+```yaml
+role: growth
+task: review
+initiative: improve-team-invite-conversion
+project: web-app
+domains:
+  - onboarding
+```
+
+### Layer 4: Compiled Context Pack
+
+A context pack is the generated Markdown artifact given to Claude Code, Codex, or another coding agent.
+
+It should contain only what the current role and task need. A context pack is generated output, not the source of truth.
+
+### Placement Rules
+
+Use these rules when deciding where content belongs:
+
+| If the content is... | Put it in... |
+|---|---|
+| Raw notes, transcripts, journals, or long documents | External source / `sources` |
+| Stable product facts | `context.md` |
+| Principles or red lines | `principles.md` / `constraints.md` |
+| Role responsibilities or review standards | `roles/*.md` |
+| Business-area flows, metrics, or decisions | `domains/*` |
+| Current feature, project, or experiment work | `initiatives/*` |
+| Repo-specific technical constraints | `projects/*.md` |
+| Confirmed long-term lessons | `memory/*` |
+| Current task input for an agent | Generated context pack |
+
+---
+
 ## 3. File Layout
 
 A minimal v0.1 project uses this layout:
@@ -598,6 +703,15 @@ The example should include a complete `.contextspec/` directory and at least one
 ## 14. Changelog
 
 This changelog tracks substantive edits to the v0.1 protocol so downstream implementations can detect when assumptions change. Each entry should describe what changed and why, not who edited it.
+
+### 2026-05-08 — Context and knowledge taxonomy
+
+Aligned the protocol with the README and product blueprint by making the context-vs-knowledge boundary explicit in the spec.
+
+- §2.1: added a five-layer taxonomy (`Raw Knowledge -> Curated Knowledge -> Structured Context -> Task Context -> Compiled Context Pack`).
+- §2.1: defined the purpose of each layer and clarified that raw knowledge may be referenced via `sources` without being imported into `.contextspec/`.
+- §2.1: added a structured-context category table covering global, role, domain, initiative, project, memory, and source-reference context.
+- §2.1: added placement rules to clarify where facts, principles, role guidance, initiative work, project constraints, and long-term lessons belong.
 
 ### 2026-05-08 — Pack compilation rules (post-example)
 
