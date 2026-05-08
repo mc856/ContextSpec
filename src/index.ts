@@ -1,3 +1,10 @@
+export { initContextSpec } from './init.js';
+export type { InitOptions, InitResult } from './init.js';
+export { createInitiative } from './createInitiative.js';
+export type {
+  CreateInitiativeOptions,
+  CreateInitiativeResult,
+} from './createInitiative.js';
 export { loadRegistry } from './registry.js';
 export type {
   Registry,
