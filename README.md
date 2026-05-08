@@ -79,6 +79,8 @@ contextspec pack \
   --stdout
 ```
 
+This repo dogfoods itself: `.contextspec/` is checked in, and `test/dogfood.test.ts` compiles a pack against it on every CI run, so template drift surfaces as a failing test before it surfaces to a user. The active initiative is `finish-line` — see `.contextspec/initiatives/finish-line/` for the v0.1 release plan.
+
 Development:
 
 ```bash

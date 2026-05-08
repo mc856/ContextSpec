@@ -1,0 +1,62 @@
+# ContextSpec registry — see CONTEXTSPEC_V0_1_SPEC.md §4.
+version: "0.1"
+
+# Files loaded for every role, every initiative.
+context:
+  includes:
+    - context.md
+    - principles.md
+    - glossary.md
+    - constraints.md
+
+# Optional: external knowledge bases referenced via source://<id>/<path>.
+# Uncomment and edit to enable. Source paths support ~ for home.
+# sources:
+#   personal_knowledge_base:
+#     type: markdown_dir
+#     path: ~/notes
+#     include:
+#       - "Customers/**"
+#       - "Decisions/**"
+#     exclude:
+#       - "Daily/**"
+#       - "Private/**"
+#     mode: reference_only
+
+roles:
+  pm:
+    file: roles/pm.md
+    includes: []
+  growth:
+    file: roles/growth.md
+    includes:
+      - memory/experiment-results.md
+  engineer:
+    file: roles/engineer.md
+    includes:
+      - memory/anti-patterns.md
+
+# Optional: business-area context. Attach to an initiative via
+# `initiatives.<id>.domains`.
+# domains:
+#   onboarding:
+#     includes:
+#       - domains/onboarding/context.md
+
+# Per-repo / per-deployable engineering context.
+projects:
+  cli:
+    repo: git@github.com:mc856/codex
+    includes:
+      - projects/cli.md
+
+# Initiatives are added by `contextspec create-initiative <id>`.
+initiatives:
+  finish-line:
+    path: initiatives/finish-line
+    roles:
+      - pm
+      - growth
+      - engineer
+    projects:
+      - cli
