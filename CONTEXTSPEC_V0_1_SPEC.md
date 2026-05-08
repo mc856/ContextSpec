@@ -324,6 +324,65 @@ Rules:
 4. Allowed references are listed in `## Sources` as `source://<id>/<path>` (not as absolute filesystem paths).
 5. v0.1 never inlines external content. `source://` links remain links; the pack compiler must not copy file contents from external sources.
 
+### 5.6 Compilation Strategy
+
+v0.1 packs are compiled by **deterministic concatenation**, not summarization. The compiler must not require an LLM and must produce byte-stable output for a given set of inputs and a given `generated_at` timestamp.
+
+Rules:
+
+1. Each included file's body is inserted verbatim into the routed section (§5.7). Headings inside a file are preserved as-is.
+2. No rewriting, summarization, extraction, or reordering of file contents.
+3. Between consecutive files in the same section, the compiler inserts a separator: a blank line, a `### <path-relative-to-.contextspec>` subheading, and a blank line. This makes file boundaries visible to reviewers.
+4. Sections that receive no files must still appear in the pack body, marked `_(empty)_`. Empty sections must also be listed in `## Sources` as skipped, per §4.6.
+5. Smarter strategies (LLM-driven distillation, per-section token budgets, semantic compression) are deferred. Future versions may opt in via an explicit flag without changing the v0.1 default.
+
+### 5.7 Section Routing
+
+Section assignment is determined by the **path** of the included file, not by which include list referenced it. The same file always lands in the same section even when referenced from multiple include lists.
+
+Routing table:
+
+| Path (relative to `.contextspec/`) | Pack section |
+|---|---|
+| Any path listed in `context.includes` | `## Global Context` |
+| `roles/**` | `## Role Context` |
+| `domains/**` | `## Domain Context` |
+| `initiatives/<active-initiative>/**` | `## Initiative Context` |
+| `projects/**` | `## Project Context` |
+| `memory/**` | `## Relevant Memory` |
+| `sources/**` | `## Initiative Context` (curated reference notes are treated as initiative-scoped narrative) |
+| `source://` link | `## Sources` only (never inlined into a body section) |
+| Any other path | `## Role Context` with a warning |
+
+Additional rules:
+
+1. `initiatives/<other>/**` paths (initiatives other than the one being compiled) are not included automatically. If explicitly named in another initiative's include list, they route to `## Initiative Context` and the compiler emits a warning that cross-initiative inclusion is rare.
+2. `packs/**` is **excluded from routing**. Compiled packs are derived artifacts and must never be re-included into another pack.
+3. Initiative-file loading order within `## Initiative Context`:
+   1. `brief.md`
+   2. `context-map.md`
+   3. `plan.md`
+   4. `tasks.md`
+   5. `acceptance.md`
+   6. `decisions.md`
+   7. any other top-level initiative files, alphabetically
+   8. `reviews/<role>.md` for each role attached to the initiative, in `registry.yaml > initiatives.<id>.roles` declaration order
+   9. `retro.md`
+4. The role file (`roles/<id>.md`) is loaded before any other `roles/**` includes, even if registered later.
+
+### 5.8 Frontmatter `sources` and `## Sources`
+
+`sources:` in the pack frontmatter and the `## Sources` body section must list **the same items in the same order**. They are two views of the same list.
+
+Order:
+
+1. Tiers follow §5.3 loading order: global → role file → role includes → domain → initiative → project → memory → `source://` references.
+2. Within each tier, items follow declaration order in `registry.yaml`. For initiative files, the order in §5.7 applies.
+3. Deduplication is by resolved path (§4.5); only the first occurrence is listed.
+4. `source://` links always appear last, in the order they were encountered while walking the curated `.contextspec/` files in §5.3 order.
+5. Items are formatted as paths relative to `.contextspec/` (e.g. `roles/growth.md`) or as `source://<id>/<path>` for external references. The two formats are intentionally distinguishable so a reader knows whether the file is local or external.
+6. Skipped or missing files (per §4.6) are listed at the end of `## Sources` under a `_skipped:_` italic line, but are not added to the frontmatter `sources:` array.
+
 ---
 
 ## 6. Role Template Format
@@ -539,6 +598,14 @@ The example should include a complete `.contextspec/` directory and at least one
 ## 14. Changelog
 
 This changelog tracks substantive edits to the v0.1 protocol so downstream implementations can detect when assumptions change. Each entry should describe what changed and why, not who edited it.
+
+### 2026-05-08 — Pack compilation rules (post-example)
+
+Surfaced while writing `examples/improve-team-invite-conversion/`. The hand-written packs forced three previously-implicit decisions that the v0.1 CLI must commit to. All three are additive; existing rules are unchanged.
+
+- §5.6 Compilation Strategy: v0.1 packs are deterministic concatenation only. No LLM, no summarization. Byte-stable output for a given input set and `generated_at`. File boundaries are made visible via `### <path>` separators between consecutive files in the same section.
+- §5.7 Section Routing: a routing table maps each included file's **path** to a pack section. Routing is path-based, not include-list-based, so the same file always lands in the same section even when referenced from multiple lists. `packs/**` is excluded from routing entirely. Initiative files have a defined load order (`brief → context-map → plan → tasks → acceptance → decisions → others alphabetical → reviews/<role>.md → retro`).
+- §5.8 Frontmatter `sources` and `## Sources`: the two are required to list the same items in the same order, with `source://` links always last and skipped items in an italic `_skipped:_` trailer in the body section only.
 
 ### 2026-05-07 — Protocol clarifications (pre-implementation)
 
