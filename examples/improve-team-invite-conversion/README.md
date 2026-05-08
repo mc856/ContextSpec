@@ -25,6 +25,7 @@ This example targets `CONTEXTSPEC_V0_1_SPEC.md` as of changelog entry **2026-05-
 - It does not include `retro.md` content, because the initiative is mid-flight.
 - It does not exercise `monetization` or `coordinator` roles — those are out of v0.1 scope.
 - The two packs were compiled by hand; they show the format the future CLI should produce, not actual CLI output.
+- The packs are written as a **target distilled form**: each section contains a tightened summary of the included files, not their verbatim contents. The v0.1 CLI compiles packs by deterministic concatenation per spec §5.6, so its output will be longer and contain `### <path>` separators between included files. This example is intentionally the "ideal compact form" to keep the demo readable; treat it as a structural reference (frontmatter shape, section ordering, `## Sources` consistency), not as byte-equivalent expected CLI output.
 
 ## How to read this example
 
