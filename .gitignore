@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node / TypeScript (contextspec CLI)
+node_modules/
+dist/
+*.tgz
+.vitest-cache/
+coverage/
+.DS_Store
