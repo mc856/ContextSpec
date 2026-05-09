@@ -224,3 +224,9 @@ dist/
 .vitest-cache/
 coverage/
 .DS_Store
+
+# ContextSpec generated packs — `generated_at` varies per run.
+# Slash commands and AGENTS.md are committed because they are byte-stable
+# derivatives of the registry + spec; packs are per-task output.
+.contextspec/initiatives/*/packs/
+!.contextspec/initiatives/*/packs/.gitkeep
