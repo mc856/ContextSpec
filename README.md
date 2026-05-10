@@ -89,6 +89,8 @@ npm run build
 npm test
 ```
 
+For a reviewer's map of the v0.1 implementation — module-by-module purpose, design choices, test coverage, and open questions — see [`docs/v0-1-implementation-notes.md`](docs/v0-1-implementation-notes.md).
+
 `generate claude` writes idempotent slash commands per role (`pm-review`, `growth-review`, `engineer-handoff`, `engineer-review`, plus `context-status` and `context-retro`). `generate codex` writes a managed `## ContextSpec` section into `AGENTS.md`, marked with HTML comments so user-authored content above and below it survives subsequent regenerations.
 
 ## Planned v0.1
