@@ -396,6 +396,43 @@ These are documented as deferred in the spec; some are tracked in active initiat
 - **No `validate`.** First-time users discover registry mistakes via `compilePack` warnings, which are easy to miss. **Mitigation**: planned in `finish-line` Phase 2.
 - **`memory/anti-patterns.md`** is the canonical record of bugs hit during v0.1 build. Read it before designing anything that touches the same module. Currently lives in PR #9.
 
+### Implementation risks (open, ranked by leverage)
+
+These are issues identified during the post-v0.1 review — concrete failure modes, not vague worries. Each one names what could go wrong and where it should be addressed. The architecture review may revise the priority order.
+
+1. **CI is the highest-leverage missing piece.**
+   - Failure mode: every future PR (validate, publish, slash-command edits) is one accidental regression away from a silently-broken `main`. The 4 v0.1 PRs were green-lit by manual local runs only.
+   - Cost to address: a single GitHub Actions workflow (~30 lines yaml) running `npm ci && npm run build && npm test`.
+   - Where to address: pull this **out of** `finish-line` Phase 4 and make it Phase 1. Every other phase benefits from CI being already in place.
+
+2. **`preprocessArgv` only handles spec-form commands at fixed argv positions.**
+   - Failure mode: `contextspec --cwd foo create initiative bar` does **not** collapse `create initiative` because the check is at `argv[2..3]` and `--cwd foo` shifted them. The user gets a confusing cac error rather than a working command.
+   - Code: `src/cli.ts:preprocessArgv`, the `if (out[2] === 'create' && out[3] === 'initiative')` line.
+   - Cost to address: scan argv for any adjacent `create initiative` / `generate claude` / `generate codex` pair, regardless of position. ~10 lines change. Lock with a `child_process` test that exercises the spec form with leading flags.
+   - Where to address: small, can land alongside CI as a follow-on.
+
+3. **Slash commands and `AGENTS.md` were committed before the package was published.**
+   - Failure mode: `.claude/commands/*.md` and the managed block of `AGENTS.md` reference `contextspec pack ...` literally. If npm publish lands under `@contextspec/cli` instead of `contextspec`, the bin name might still be `contextspec` (npm scoped names support arbitrary bin names) — but if the founder decides to rename, six slash commands and the AGENTS.md template both need regeneration.
+   - Code: the embedded command in `src/generateClaude.ts:roleCommand` and `src/generateCodex.ts:SECTION_BODY`.
+   - Cost to address: cheap, but order-dependent. Decide the bin name **before** finishing publish, regenerate slash commands + AGENTS.md, recommit.
+   - Where to address: `finish-line` Phase 3 (publish) acceptance must include "regenerated slash commands and AGENTS.md, both byte-stable on re-run".
+
+4. **`forceBlockStyle` depends on the `yaml` library's AST internals.**
+   - Failure mode: a `yaml` v3 release that renames `YAMLMap` / `YAMLSeq`, drops the `.flow` field, or changes `Pair.value` shape would break `createInitiative` silently — the function would no-op, and registry edits would silently emit flow-style YAML again. The `init.test.ts:preserves comments and existing entries` test would catch the regression, but only on diff inspection.
+   - Code: `src/createInitiative.ts:forceBlockStyle`.
+   - Cost to address: pin `yaml` to a minor version range (`"yaml": "~2.6.0"` instead of `^2.6.0`) and add a code comment naming the AST surface we depend on. Optionally, narrow the function with a runtime check (`if (!('flow' in node)) return;`) so we fail-soft on shape change.
+   - Where to address: any time. Suggest folding into the same PR that adds CI (small, testable).
+
+### Reviewer's checklist for any future PR
+
+When opening a PR, confirm in the PR description:
+
+- which spec sections are exercised (cite e.g. §5.7 rule 3)
+- which existing tests cover it; which new tests are added
+- whether it preserves byte-stability on existing generated outputs (run `pack` twice with fixed `generated_at`, diff)
+- whether it preserves the four [Cross-cutting invariants](#cross-cutting-invariants)
+- whether `docs/v0-1-implementation-notes.md` was updated (this file)
+
 ---
 
 ## Update protocol
