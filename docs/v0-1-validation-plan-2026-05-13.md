@@ -186,3 +186,30 @@ trial result and can be drafted in parallel.
 - `docs/decisions/2026-05-13-drop-monetization-role.md` exists.
 - The `v0-1-validation` initiative under `.contextspec/initiatives/` has at
   minimum `brief.md` and `retro.md` summarizing what was learned.
+  *Status (2026-05-13): intentionally skipped. The four deliverables above
+  carry the brief + retro content in distributed form; a separate initiative
+  container would only restate them and risk drift. Captured as H-07
+  evidence in `docs/open-questions.md`.*
+
+## Reading order for an external reviewer
+
+A reader picking this trail up cold should read in this order:
+
+1. `VISION.md` — what the project is for.
+2. `docs/methodology-review-2026-05-12.md` — the diagnosis this plan
+   responds to. Pay attention to §5 (the 2026-05-13 update note); some
+   diagnoses are already outdated.
+3. *this file* — what we committed to do and the falsifiable criteria.
+4. `docs/trials/2026-05-13-pr9-review-trial.md` — Phase 1 evidence. This
+   is the load-bearing artifact; if it does not convince, nothing
+   downstream does.
+5. `docs/decisions/2026-05-13-drop-monetization-role.md` — Phase 4. A
+   concrete worked example of recording a silent drop.
+6. `docs/open-questions.md` and `PRODUCT_BLUEPRINT.md` §22 — Phase 3.
+   What we have not yet validated.
+7. `CONTEXTSPEC_V0_1_SPEC.md` §5.2.1 and §8.1 sub-section — Phase 2. The
+   spec edits the trial produced.
+
+`PRODUCT_BLUEPRINT.md` (full) and `docs/v0-1-implementation-notes.md` are
+optional unless the reviewer wants to audit mechanical invariants or the
+shipping surface beyond what the review touched.
