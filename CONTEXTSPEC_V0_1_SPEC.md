@@ -597,6 +597,9 @@ v0.1 built-in roles:
 
 Additional roles can be added by users, but the CLI only needs to generate the four built-ins for v0.1.
 
+`PRODUCT_BLUEPRINT.md` §5.2 lists seven roles. The drop from seven to four
+for v0.1 is recorded in `docs/decisions/2026-05-13-drop-monetization-role.md`.
+
 ---
 
 ## 7. Initiative Template Format
