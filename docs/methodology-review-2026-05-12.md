@@ -178,3 +178,64 @@ Ordered by ROI (highest first). All are cheap; none require new code.
   the spec by inspection of `v0-1-implementation-notes.md`; a separate
   pass with the `code-review` skill would verify that claim.
 - Market / positioning critique. The vision is taken as given.
+
+## 5. Update note — 2026-05-13
+
+This note reflects project state after the original review date. It does not
+replace the review above; it updates which recommendations still look current.
+
+### What still looks right
+
+- The biggest-risk section still holds. ContextSpec has strong mechanical
+  guarantees, but the central product claim — that role-based packs improve
+  review quality on real work — still needs direct evidence from an end-to-end
+  trial on a real PR.
+- The call to strengthen semantic contracts still looks high leverage. The
+  protocol is precise about routing, ordering, and byte-stability, but it is
+  still looser about what a *good* `context-map.md`, `## Review Checklist`, or
+  `## Output Contract` should contain.
+- The call to register assumptions is still directionally right, especially
+  around the role set, YAML tolerance, and what would falsify the current
+  founder-usability framing.
+
+### What is now partly or fully outdated
+
+- The review's "Dogfood is missing" diagnosis is no longer current. This repo
+  now has a committed `.contextspec/`, an active dogfood initiative
+  (`finish-line`), and a live-fixture test intended to catch drift between the
+  code and the repo's own ContextSpec setup.
+- Recommendation 1 ("Dogfood ContextSpec on itself") has therefore already been
+  substantially executed. It should not be treated as next-step work anymore;
+  the remaining question is whether the dogfood produced enough product
+  learning, not whether it exists.
+- The "KB boundary vs `sources/` is unresolved" claim is weaker than it was on
+  2026-05-12. Since then, the spec and principles have made the boundary much
+  more explicit: `source://` is a reference, not an import; external content is
+  allow-listed and never inlined into packs. The remaining risk is misuse or
+  product confusion, not lack of a written rule.
+- The criticism that there is no per-slice planning artifact was fair for the
+  early merged PRs, but it is less true of the current state. The
+  `finish-line` initiative now includes `brief.md`, `context-map.md`, `plan.md`,
+  `acceptance.md`, and `decisions.md`, which together function as a slice-level
+  plan and hypothesis record.
+
+### Updated recommendation order
+
+If prioritizing from the current repo state, the most useful next moves now
+look like:
+
+1. Run and record one real end-to-end review trial using generated packs on a
+   real PR.
+2. Add semantic positive/negative examples for the under-specified narrative
+   templates in the spec.
+3. Decide whether assumptions should live only inside initiative hypotheses or
+   also in a project-level `docs/open-questions.md`.
+4. Record the Monetization-role drop explicitly if it remains an intentional
+   narrowing rather than an accidental omission.
+
+### Bottom line
+
+As a retrospective, this review is still useful. As an action plan, it now
+needs interpretation: several of its best diagnoses were correct, but some of
+its recommended next moves have already been absorbed by later work and should
+be treated as completed or reframed rather than repeated.
