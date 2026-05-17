@@ -222,6 +222,7 @@ __marimo__/
 
 # Node / TypeScript (contextspec CLI)
 node_modules/
+.npm-cache/
 dist/
 *.tgz
 .vitest-cache/
