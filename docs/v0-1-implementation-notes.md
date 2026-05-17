@@ -19,16 +19,16 @@ When you change architecture, update both this doc and `.contextspec/initiatives
 ```
                        cli.ts
                           │
-        ┌──────────┬──────┴──────┬─────────────┬─────────────┐
-        │          │             │             │             │
-      init      createInit    compile       generate      generate
-       .ts        iative.ts     .ts          Claude.ts      Codex.ts
-        │           │            │              │              │
-   templates.ts  templates.ts  resolve.ts    registry.ts    (none)
-                 registry.ts     │
-                  (yaml)       route.ts
-                              sources.ts
-                              registry.ts
+        ┌──────────┬──────┬─────────────┬─────────────┬─────────────┬─────────────┐
+        │          │      │             │             │             │             │
+      init      create  validate      compile       generate      generate      registry
+       .ts    Initiative   .ts          .ts          Claude.ts      Codex.ts      .ts
+        │         .ts      │             │              │              │
+   templates.ts    │    compile.ts    resolve.ts    registry.ts    (none)
+                   │    sources.ts       │
+              templates.ts               route.ts
+              registry.ts                sources.ts
+                                          registry.ts
 ```
 
 **Layering rule**: lower modules don't import higher ones. `cli.ts` is the only thing that imports commands; commands import their helpers; helpers (`registry.ts`, `route.ts`, `sources.ts`, `templates.ts`) are leaf modules with no internal dependencies.
@@ -37,20 +37,21 @@ When you change architecture, update both this doc and `.contextspec/initiatives
 
 | Module | Lines |
 |---|---|
-| `cli.ts` | 239 |
+| `cli.ts` | 286 |
 | `compile.ts` | 179 |
 | `createInitiative.ts` | 182 |
 | `generateClaude.ts` | 132 |
 | `generateCodex.ts` | 72 |
-| `index.ts` | 42 |
+| `index.ts` | 48 |
 | `init.ts` | 69 |
 | `registry.ts` | 76 |
 | `resolve.ts` | 179 |
 | `route.ts` | 53 |
 | `sources.ts` | 78 |
 | `templates.ts` | 395 |
+| `validate.ts` | 238 |
 
-Templates dominate by line count but contain no logic. The five real workhorses are `compile`, `resolve`, `createInitiative`, `cli`, `generateClaude`.
+Templates dominate by line count but contain no logic. The six real workhorses are `compile`, `resolve`, `validate`, `createInitiative`, `cli`, `generateClaude`.
 
 ---
 
@@ -71,7 +72,7 @@ Templates dominate by line count but contain no logic. The five real workhorses 
 
 **Tests.** `pack.test.ts:registry loader` (3 cases) — version, role keys, initiative keys.
 
-**Open questions.** When `validate` lands, decide whether to make the schema validator strict at load time and have `compilePack` skip validation on its second pass. Currently `compilePack` re-checks because the parser is loose.
+**Open questions.** Should `loadRegistry` ever reject undeclared initiative attachments (`roles`, `domains`, `projects`) up front now that `validate` exists, or is the split between "load loosely, validate explicitly" the right long-term UX?
 
 ---
 
@@ -135,6 +136,29 @@ Templates dominate by line count but contain no logic. The five real workhorses 
 **Open questions.**
 - Should `validateSourceLink` distinguish between "no `sources` map at all" and "unknown source id"? Currently both return the same `ok: false` with reason `unknown source id`. Probably fine; the warning message is unambiguous.
 - If `sources.<id>.path` resolves under `~`, we don't actually expand `~` here because we never read external files in the compiler. Path expansion lives in the future external-fetch pipeline (post-v0.1).
+
+---
+
+### `src/validate.ts`
+
+**Purpose.** Validate that a `.contextspec/` tree is internally consistent before a user generates or reviews packs.
+
+**Public API.** `validateContextSpec(opts) -> ValidateResult` plus `ValidationIssue`.
+
+**Spec sections.** §3.1 (path resolution), §4 (registry references), §5.4 / §5.5 (`source://` allow-listing), §5.7 rule 2 (`packs/` are generated output), and the `finish-line` initiative's Phase 2 acceptance.
+
+**Design notes.**
+- Validation is a separate pass, not a stricter `loadRegistry`. This keeps `compilePack` and scaffolding flows tolerant while giving users one explicit command to surface all drift.
+- Default mode checks registry-referenced files, initiative attachment ids (`roles`, `domains`, `projects`), initiative paths, and every `source://` link found in curated Markdown under `.contextspec/` (excluding generated `packs/`).
+- `--strict` enables stale-pack checks. This is intentionally opt-in because committed example packs may lag the live sources; surfacing that drift is useful, but too noisy for the default "is my registry sane?" pass.
+- Stale-pack detection compares the committed pack frontmatter `sources` list against a freshly compiled pack for the same `role` / `task` / `initiative`. We compare source sets, not full bytes, so `generated_at` churn doesn't matter.
+- Issues are returned as structured `{ key, path?, message }` objects, but CLI output is one line per issue with no stack traces. The human-facing contract is concise diagnostics first.
+
+**Tests.** `validate.test.ts` covers green paths for the example fixture and live dogfood, a missing referenced file, and strict-mode stale-pack detection.
+
+**Open questions.**
+- Should strict mode also surface `compilePack` warnings (for example unrouted files) as validation issues, or is that a separate linting concern?
+- If users want machine-readable output, should we add `--json` here or keep v0.1 purely text-first?
 
 ---
 
@@ -365,8 +389,9 @@ All "wrote X" / "warning: Y" goes to stderr. Pack content (when `--stdout`) goes
 | `test/init.test.ts` | 208 | 12 | Sandbox-based: each test creates a fresh `mkdtempSync` directory. |
 | `test/generate.test.ts` | 169 | 8 | Sandbox-based, plus snapshot helpers for re-run idempotency. |
 | `test/dogfood.test.ts` | (in PR #9, ~80) | 5 | Live-fixture: compiles a pack against the repo's own `.contextspec/`. |
+| `test/validate.test.ts` | 128 | 4 | Hybrid: validates the example fixture, the live dogfood, and temp-cloned tampered fixtures. |
 
-Total: 41 cases. Run time under 1 second locally.
+Total: 45 cases. Run time under 1 second locally.
 
 ### Patterns
 
@@ -383,7 +408,6 @@ Total: 41 cases. Run time under 1 second locally.
 
 These are documented as deferred in the spec; some are tracked in active initiatives:
 
-- `contextspec validate` — promoted into `finish-line` initiative (PR #9), planned next.
 - `contextspec status` — deferred indefinitely.
 - `contextspec handoff <from> <to>` — deferred indefinitely.
 - `contextspec retro <initiative>` — deferred; the slash command `context-retro` covers most of the value.
@@ -393,7 +417,6 @@ These are documented as deferred in the spec; some are tracked in active initiat
 - **No CLI test file.** Argv preprocessing isn't tested directly. Risk: a regression to multi-word commands lands silently. **Mitigation**: smoke tests in PR descriptions catch this on review.
 - **No CI.** Currently `npm test` runs locally only. **Mitigation**: planned in `finish-line` Phase 4.
 - **No published artifact.** `npm i -g contextspec` doesn't work yet. **Mitigation**: planned in `finish-line` Phase 3.
-- **No `validate`.** First-time users discover registry mistakes via `compilePack` warnings, which are easy to miss. **Mitigation**: planned in `finish-line` Phase 2.
 - **`memory/anti-patterns.md`** is the canonical record of bugs hit during v0.1 build. Read it before designing anything that touches the same module. Currently lives in PR #9.
 
 ---

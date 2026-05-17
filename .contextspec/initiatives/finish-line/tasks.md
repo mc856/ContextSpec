@@ -2,7 +2,7 @@
 
 Concrete units of work, sized in hours, not days. Strikethrough = done.
 
-## Phase 1 — Dogfood (this PR)
+## Phase 1 — Dogfood (shipped)
 
 - [x] `contextspec init` in repo root
 - [x] customize `context.md`, `principles.md`, `glossary.md`, `constraints.md` for the ContextSpec project
@@ -13,8 +13,10 @@ Concrete units of work, sized in hours, not days. Strikethrough = done.
 - [x] populate brief / context-map / plan / tasks / acceptance / decisions
 - [x] `contextspec generate claude` → commit `.claude/commands/`
 - [x] `contextspec generate codex` → commit `AGENTS.md`
-- [ ] add `test/dogfood.test.ts`: compile a pack against the live `.contextspec/` and assert no warnings, no skipped files
-- [ ] commit + open PR
+- [x] add `test/dogfood.test.ts`: compile a pack against the live `.contextspec/` and assert no warnings, no skipped files
+- [x] commit + open PR
+
+Note: `initiatives/<id>/packs/` remains generated output. The live dogfood test compiles packs in memory; committed pack files are not required for Phase 1 to count as shipped.
 
 ## Phase 2 — `contextspec validate`
 

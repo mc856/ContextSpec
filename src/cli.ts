@@ -7,6 +7,7 @@ import { generateClaude } from './generateClaude.js';
 import { generateCodex } from './generateCodex.js';
 import { initContextSpec } from './init.js';
 import { loadRegistry } from './registry.js';
+import { validateContextSpec } from './validate.js';
 
 /**
  * Allow the spec-form `contextspec create initiative <name>` in addition
@@ -130,6 +131,46 @@ cli
 
 cli
   .command(
+    'validate',
+    'Validate registry references and optional generated-pack freshness.',
+  )
+  .option('--cwd <path>', 'project root containing .contextspec/ (default: current directory)')
+  .option('--strict', 'also flag stale pack files in initiatives/*/packs/', {
+    default: false,
+  })
+  .option('--quiet', 'suppress success output', { default: false })
+  .action(async (options: ValidateCmdOptions) => {
+    const projectRoot = resolveCwd(options.cwd);
+    const contextRoot = resolvePath(projectRoot, '.contextspec');
+    const registryPath = resolvePath(contextRoot, 'registry.yaml');
+
+    if (!existsSync(registryPath)) {
+      console.error(
+        `error: no registry.yaml found at ${registryPath}. ` +
+          `Run \`contextspec init\` first, or pass --cwd.`,
+      );
+      process.exit(1);
+    }
+
+    const registry = loadRegistry(registryPath);
+    const result = validateContextSpec({
+      registry,
+      contextRoot,
+      strict: options.strict ?? false,
+    });
+
+    if (result.issues.length > 0) {
+      for (const issue of result.issues) console.error(issue.message);
+      process.exit(1);
+    }
+
+    if (!options.quiet) {
+      console.error(`validated ${contextRoot}`);
+    }
+  });
+
+cli
+  .command(
     'pack',
     'Compile a context pack for the given role + initiative.',
   )
@@ -236,4 +277,10 @@ interface PackOptions {
   project?: string;
   cwd?: string;
   stdout?: boolean;
+}
+
+interface ValidateCmdOptions {
+  cwd?: string;
+  strict?: boolean;
+  quiet?: boolean;
 }

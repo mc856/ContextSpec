@@ -40,3 +40,9 @@ export {
   globToRegex,
 } from './sources.js';
 export type { SourceLink, SourceValidation } from './sources.js';
+export { validateContextSpec } from './validate.js';
+export type {
+  ValidateOptions,
+  ValidateResult,
+  ValidationIssue,
+} from './validate.js';

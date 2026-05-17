@@ -1,14 +1,14 @@
 # Plan
 
-Four small phases, each its own PR, each independently revertible.
+Four small phases, each independently revertible. Phase 1 is already in the repo; Phase 2 is the active implementation slice.
 
-## Phase 1 — Dogfood (this PR)
+## Phase 1 — Dogfood (shipped)
 
 - change: populate `.contextspec/` for this repo using the v0.1 CLI itself; commit the output of `generate claude` + `generate codex`; add a live-fixture test that fails when the dogfood drifts from the code.
 - experiment: founder uses `/engineer-handoff finish-line` once and writes down whether the resulting pack would have replaced a hand-written prompt.
 - decision rule: if the founder would not have used the pack, treat it as falsifying hypothesis 1 and pause to fix the templates before continuing.
 
-## Phase 2 — `contextspec validate`
+## Phase 2 — `contextspec validate` (active)
 
 - change: implement `contextspec validate` (deferred command from §9.1, promoted by this initiative). Checks: every `roles.<id>.file` exists; every `<role>.includes`, `<domain>.includes`, `<project>.includes` resolve; every initiative's `path` exists; every `source://` reference passes its registry's include/exclude; pack files in `packs/` either have a matching live source set or are flagged stale.
 - experiment: run `validate` against the repo's `.contextspec/` and against the example fixture; assert green on both.
