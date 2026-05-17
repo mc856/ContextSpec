@@ -12,6 +12,8 @@
 
 **ContextSpec 是一个本地优先的角色化上下文框架，帮助 Claude Code、Codex 等 coding agent 在执行任务前自动获得正确的产品、业务、工程、QA 和历史决策上下文。**
 
+它尤其适合 AI-native solo founder / 一人公司场景：不是因为一个人加 AI 已经等于一家公司，而是因为这类用户最容易遇到“上下文分散在自己脑子里、每次都要重新解释给 agent”的问题。ContextSpec 解决的是这个上下文管理问题。
+
 更短的版本：
 
 > Role-based context for coding agents.
@@ -232,7 +234,9 @@ ContextSpec 初版有 6 个核心对象，外加 1 个轻量辅助对象。
 
 > 职责边界 + 所需上下文 + 审查标准 + 输出契约。
 
-初版内置角色：
+长期角色池可以覆盖更宽的职责范围，但 v0.1 不会一次实现全部角色。
+
+蓝图层面的候选角色：
 
 ```text
 PM
@@ -243,6 +247,8 @@ QA
 Reviewer
 Coordinator
 ```
+
+其中，**v0.1 的内置角色范围收敛为 PM / Growth / Engineer / QA**。Monetization、Reviewer、Coordinator 保留为后续可扩展方向，而不是当前版本承诺。
 
 每个角色定义：
 
@@ -1262,6 +1268,24 @@ ContextSpec initiative
 
 ContextSpec 是上游上下文层。
 
+协议层和宿主层应该分开看：
+
+```text
+Canonical source
+  .contextspec/ roles / initiatives / memory / registry
+
+Compiler / manager
+  contextspec CLI
+
+Host adapters
+  Claude commands
+  Codex AGENTS.md
+  future skills
+  future prompt exports
+```
+
+其中 `skill` 是很适合迁移和分发的文档形态，但不应该定义产品本体。产品本体仍然是角色上下文协议；skill、command、AGENTS instruction 都只是不同宿主里的投递格式。
+
 ---
 
 # 16. 产品差异化
@@ -1276,11 +1300,13 @@ ContextSpec 和常见工具的区别：
 | OpenSpec / Spec Kit                  | 代码变更规格    | ContextSpec 管更上游的组织/产品/角色上下文              |
 | Multi-agent frameworks               | agent 编排  | ContextSpec 先解决上下文装配，不急着自动协作              |
 
+参考 OpenSpec 的处理方式，值得借鉴的不是某一个宿主入口，而是它把协议层和宿主适配层分开的思路。ContextSpec 也应该保持这个分层：canonical docs 由 CLI 管理，再导出到 commands、AGENTS instructions，以及未来的 skills。
+
 ---
 
 # 17. 初版价值主张
 
-对 solo founder：
+对 solo founder / 一人公司：
 
 > 不再每次向 Claude/Codex 重讲产品背景。让 AI 像长期团队成员一样理解你的产品、业务和决策。
 
@@ -1384,7 +1410,7 @@ agent 只能建议 memory update
 
 如果内置角色只是普通 prompt，价值会很弱。
 
-你需要认真打磨：
+如果未来扩展角色池，你需要认真打磨：
 
 ```text
 PM role
@@ -1692,9 +1718,9 @@ It can reference or distill notes, docs, customer feedback, and decisions from t
 
 ```text
 Name: ContextSpec
-Positioning: Role-based context for Claude Code and Codex
-Audience: AI-native solo founders and small teams
-Core: context pack compiler
+Positioning: Portable role-context protocol for coding agents
+Audience: AI-native solo founders, one-person companies, and small teams
+Core: local protocol + context pack compiler
 MVP: files + CLI + Claude commands + Codex AGENTS.md
 Workflow: initiative → role review → handoff → implementation → QA → retro
 ```

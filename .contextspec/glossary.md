@@ -4,7 +4,7 @@ Terms with a specific meaning inside ContextSpec. Use this to keep specs, role f
 
 - **Initiative** — a unit of work scoped tightly enough that one role can review it in one sitting. Each initiative has its own directory under `initiatives/<id>/`. Not the same as an "epic" or a "project".
 
-- **Role** — a perspective + an output contract, declared in `registry.yaml.roles.<id>` and described in `roles/<id>.md`. v0.1 ships with PM, Growth, Engineer (QA is in spec §10 but not pre-scaffolded by `init`). Roles are not job titles; they're decision frames.
+- **Role** — a perspective + an output contract, declared in `registry.yaml.roles.<id>` and described in `roles/<id>.md`. The broader product vision discusses more possible roles, but the v0.1 built-in role set is PM, Growth, Engineer, and QA. `init` pre-scaffolds PM, Growth, and Engineer; QA remains supported in the spec and CLI surfaces even though it is not scaffolded by default. Roles are not job titles; they're decision frames.
 
 - **Domain** — a business area whose context is stable across initiatives (e.g. "onboarding", "billing"). Domains are optional. Use them when the same flows/metrics get loaded into many initiatives.
 

@@ -6,6 +6,10 @@ note in §5 of that file.
 Scope: execute all four owner-prioritized recommendations as one bounded piece
 of work, without shipping any new v0.2 compiler features.
 
+This plan should also sharpen whether ContextSpec really fits the emerging
+"solo founder / one-person company with AI" workflow. That fit is currently a
+strong thesis, not yet a demonstrated result.
+
 This plan is methodology and evidence work, not protocol or code work.
 
 ## Container
@@ -27,7 +31,8 @@ its evidence.
 `.contextspec/finish-line`). Chosen over PRs #10 (docs-only) and a synthetic
 mini-PR because PR #9 simultaneously tests two claims: that role packs help
 review quality, and that the dogfood `.contextspec/` itself carries useful
-content.
+content for a solo founder who is switching between PM, engineering, and
+review concerns in one workflow.
 
 **Method.**
 
@@ -54,6 +59,9 @@ cannot be softened after the fact:
 - ≥1 comment in B is both absent from A and clearly attributable to pack
   context — i.e. the trial produces at least one specific insight that the
   baseline could not have reached.
+- The author can point to at least one moment where the pack reduced repeated
+  explanation or role-switching overhead in a way that would matter in a real
+  solo-founder workflow.
 
 **Failure mode handling.** If the criteria are not met, the conclusion is
 "v0.1 pack thesis is not yet validated for review use". That is a legitimate
@@ -97,7 +105,9 @@ governance rule:
 
 - **Project-level** `docs/open-questions.md` — long-lived assumptions that
   span initiatives. Examples to seed it with: target-user framing, YAML
-  tolerance, four-vs-seven role set, the `source://` boundary.
+  tolerance, four-vs-seven role set, the `source://` boundary, and the claim
+  that solo founders will sustain this workflow instead of falling back to raw
+  prompts.
 - **Initiative-level** — assumptions local to a single cycle can live in the
   initiative's own `decisions.md` or a new optional `hypotheses.md`. No
   protocol change in this plan; v0.2 may consider adding `hypotheses.md` to

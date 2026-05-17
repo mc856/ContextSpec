@@ -69,7 +69,9 @@ It should be usable by both humans and agents.
 
 ContextSpec aims to become the role-based context layer for AI-native product development.
 
-It helps solo builders and small teams turn their product, business, engineering, QA, and decision knowledge into structured context that coding agents can actually use.
+It helps solo founders, independent builders, and small teams turn their product, business, engineering, QA, and decision knowledge into structured context that coding agents can actually use.
+
+For a one-person company, the core problem is not just "how do I automate more work?" It is "how do I keep product, growth, engineering, and QA context coherent across many AI sessions when all of it lives in one founder's head?" ContextSpec is meant to be that coherence layer.
 
 Instead of repeatedly explaining background to Claude Code, Codex, or other coding agents, teams should be able to define their context once and reuse it across workflows.
 
@@ -126,6 +128,8 @@ It is not a replacement for Notion, Confluence, Linear, Jira, GitHub Issues, or 
 
 It is not trying to simulate a company full of autonomous AI employees.
 
+It is not a promise that one founder plus AI can replace every function of a company.
+
 It is not a generic multi-agent orchestration framework.
 
 It is not a place to dump every document, meeting note, or chat log.
@@ -137,6 +141,8 @@ ContextSpec is focused on one specific problem:
 ## Who We Build For First
 
 ContextSpec is built first for AI-native solo founders, independent builders, and small product teams.
+
+This includes the emerging "one-person company" shape: a founder who uses coding agents heavily, works across multiple functions, and needs those agents to retain structured context between sessions.
 
 These users often work across many roles at once:
 
@@ -152,6 +158,8 @@ They already use AI coding agents, but they need those agents to understand more
 They need agents that understand product intent, business constraints, role expectations, and historical decisions.
 
 ContextSpec helps them create a reusable context system without requiring a large organization, complex process, or heavy tooling.
+
+The first win is not full autonomy. The first win is reducing repeated explanation and role-switching fatigue for a founder working with AI every day.
 
 ## Principles
 

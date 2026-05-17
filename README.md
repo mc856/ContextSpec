@@ -1,12 +1,28 @@
 # ContextSpec
 
-Role-based context for Claude Code and Codex.
+Portable role-context protocol for coding agents.
 
-ContextSpec helps AI-native builders and small teams turn product, business, engineering, QA, and decision knowledge into structured context packs for coding agents.
+ContextSpec helps AI-native solo founders, one-person companies, and small teams turn product, business, engineering, QA, and decision knowledge into structured context packs for coding agents.
+
+It is especially useful when one founder works across many roles and keeps hitting the same problem: the hard part is not only execution, but preserving the right context across repeated AI sessions without re-explaining everything from scratch.
 
 ## Status
 
 ContextSpec is currently in product and protocol design. The next implementation target is the v0.1 local file protocol and context pack compiler described in [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md).
+
+## Product shape
+
+ContextSpec has three layers:
+
+```text
+canonical docs -> CLI compiler/manager -> host-specific adapters
+```
+
+- The canonical layer is `.contextspec/`: roles, initiatives, memory, and `registry.yaml`.
+- The CLI (`contextspec`) initializes and compiles that protocol.
+- Host adapters expose the same protocol through the surfaces each tool understands today, such as Claude commands and Codex `AGENTS.md`.
+
+Future skills fit naturally as another adapter output. They are a good portable document shape, but they are not the source of truth; the protocol files are.
 
 ## Why ContextSpec
 
@@ -32,6 +48,8 @@ Then use role-based commands like:
 
 ContextSpec is not a project management tool or a knowledge base.
 It is a local-first context layer for AI coding workflows.
+
+It is also not a promise that one founder plus AI replaces an entire company. Its narrower claim is stronger: it helps preserve product, growth, engineering, and QA context across repeated agent sessions.
 
 Personal knowledge bases store raw knowledge. ContextSpec curates agent-ready context.
 It can reference or distill notes, docs, customer feedback, and decisions from tools like Obsidian, Notion, Logseq, or local Markdown, but its source of truth is reviewed, task-relevant context that can be compiled into role-based context packs.
@@ -59,7 +77,11 @@ contextspec create initiative q2-onboarding-pulse \
 # 3. Compile a context pack for a role.
 contextspec pack --role engineer --initiative q2-onboarding-pulse --task review
 
-# 4. Wire the project up to your coding agent.
+# 4. Validate registry references before generating or reviewing output.
+contextspec validate
+contextspec validate --strict   # also checks whether committed packs are stale
+
+# 5. Wire the project up to your coding agent.
 contextspec generate claude   # writes .claude/commands/<role>-<task>.md
 contextspec generate codex    # creates or updates AGENTS.md in place
 ```
@@ -67,6 +89,8 @@ contextspec generate codex    # creates or updates AGENTS.md in place
 `pack` reads `.contextspec/registry.yaml`, resolves includes per spec §5.3, routes files to pack sections per §5.7, and writes to `.contextspec/initiatives/<name>/packs/<role>-<task>.md`. Pass `--stdout` to print to stdout instead.
 
 `create initiative` (or `create-initiative`) preserves comments and existing entries in `registry.yaml`.
+
+`validate` checks that registry-referenced files exist, initiative attachments point at declared roles/domains/projects, and every `source://` link is allowed by `registry.sources`. Add `--strict` to also flag stale generated pack files under `initiatives/*/packs/`. Use `--quiet` when you only care about the exit code.
 
 Try it on the example fixture:
 
@@ -102,6 +126,11 @@ For a reviewer's map of the v0.1 implementation — module-by-module purpose, de
 - Markdown context pack generation
 - Claude Code slash command generation
 - Codex `AGENTS.md` generation
+
+Likely adapter outputs after v0.1:
+
+- skill exports
+- additional prompt / command exports for other coding-agent hosts
 
 Deferred until after the context pack compiler works:
 

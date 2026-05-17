@@ -1,7 +1,7 @@
 {
   "name": "contextspec",
   "version": "0.1.0",
-  "description": "Role-based context for Claude Code and Codex.",
+  "description": "Portable role-context protocol for coding agents.",
   "type": "module",
   "bin": {
     "contextspec": "bin/contextspec.js"
