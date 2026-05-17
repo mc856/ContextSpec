@@ -1717,3 +1717,39 @@ Workflow: initiative → role review → handoff → implementation → QA → r
 > **ContextSpec v0.1 Spec**
 
 也就是把文件结构、schema、命令、角色模板、context pack 格式具体定下来。
+
+---
+
+## 22. Open-Questions Governance (added 2026-05-13)
+
+ContextSpec separates *unvalidated assumptions* from *settled decisions*
+across two layers:
+
+- **Project-level open questions** live in `docs/open-questions.md`.
+  These are assumptions whose validity matters across multiple
+  initiatives — target user, role-set sufficiency, trust model,
+  integration targets, and so on. The file is capped at 10 entries;
+  adding an 11th requires retiring or merging an existing one.
+- **Initiative-level hypotheses** live inside the initiative itself,
+  either in `decisions.md` or in an optional `hypotheses.md`. These
+  are assumptions whose validity matters only for the current
+  initiative cycle — e.g. "this initiative's plan is the right cut for
+  v0.2 prep".
+
+**Allocation rule.** If the assumption is expected to still matter
+after the current initiative closes, it lives at the project level. If
+not, it lives in the initiative. An assumption that starts initiative-
+local but turns out to keep mattering can be promoted to the project
+level at the next retro.
+
+Each project-level entry carries: the assumption, a concrete falsifier,
+status (`untested` / `partial-evidence` / `validated` / `falsified`),
+and a pointer to current evidence. New trials, ADRs, or retros update
+the status field; the original entry is not deleted on validation or
+falsification — the trail is part of the project's memory.
+
+This governance was added as Phase 3 of the v0-1-validation plan
+(`docs/v0-1-validation-plan-2026-05-13.md`) after the 2026-05-12
+methodology review flagged that the blueprint named assumptions
+informally (as "gaps" in §18) but never registered them as falsifiable
+hypotheses.

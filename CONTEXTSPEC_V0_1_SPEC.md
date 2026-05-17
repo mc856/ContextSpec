@@ -392,6 +392,78 @@ sources:
 ## Sources
 ```
 
+### 5.2.1 Semantic Guidance for Narrative Sections
+
+The headings in §5.2 are mechanical: the compiler always emits them and routes
+files into them by path. But what a reviewer should *write* under
+`## Review Checklist` and `## Output Contract` is not a routing question — it
+is the difference between a pack that helps and a pack that does not. The
+following examples and heuristics are anchored in
+`docs/trials/2026-05-13-pr9-review-trial.md`.
+
+**`## Review Checklist` — positive example.**
+A good checklist item names another pack file by section, so the reviewer
+must cross-reference rather than skim the diff. From the trial, this
+shape produced comments a diff-only reviewer could not have made
+(trial B13, B14):
+
+```md
+- Confirm no slash command writes to `memory/`. (anchor: principles —
+  "the CLI never writes to memory")
+- Verify any README claim about CI is consistent with the current phase
+  in `initiatives/<id>/plan.md`. (anchor: plan — Phase boundaries)
+```
+
+**`## Review Checklist` — negative example.**
+A checklist phrased as already-resolved suppresses re-examination. The
+trial showed pack-assisted reviewers missing five comments the baseline
+caught (A7, A10, A12, A14, A15), in part because items framed as
+"decided" or "historical" read as closed. Avoid items shaped like:
+
+```md
+- The `## Sources` substring-split bug has been fixed.
+- The `validate` command is deferred to v0.2.
+```
+
+Phrase as *verify still true* rather than *recall that it was decided*:
+
+```md
+- Verify any new fixture line containing an inline `## Sources` still
+  routes under the parent file's section.
+- Verify the live spec, constraints, and decisions agree on which
+  commands ship in this initiative.
+```
+
+**`## Output Contract` — positive example.**
+A good contract line lets an external reviewer mark a PR as missing it
+without re-reading the diff. From the trial (B-pm 12):
+
+```md
+- Every observed trade-off has a corresponding entry in
+  `initiatives/<id>/decisions.md`. A trade-off mentioned only in the PR
+  description does not count.
+```
+
+**`## Output Contract` — negative example.**
+A contract line that cannot be falsified does not constrain the reviewer:
+
+```md
+- The review is thorough.
+- The review covers all important aspects.
+```
+
+**Heuristics.**
+
+- A `## Review Checklist` item should name at least one other pack file by
+  section. Topic-only items ("check tests", "check naming") are not strong
+  enough to surface multi-file inconsistencies.
+- Frame checklist items as *verify still true*, not as *recall the
+  decision*. Decided-framings suppress fresh examination.
+- An `## Output Contract` line is good only if an external reviewer can
+  mark a PR as missing it. If the line cannot fail, it cannot pass either.
+- Both sections should be short. A checklist of 30 items is a checklist
+  that no reviewer applies.
+
 ### 5.3 Loading Order
 
 Context packs should load information in this order:
@@ -525,6 +597,9 @@ v0.1 built-in roles:
 
 Additional roles can be added by users, but the CLI only needs to generate the four built-ins for v0.1.
 
+`PRODUCT_BLUEPRINT.md` §5.2 lists seven roles. The drop from seven to four
+for v0.1 is recorded in `docs/decisions/2026-05-13-drop-monetization-role.md`.
+
 ---
 
 ## 7. Initiative Template Format
@@ -598,6 +673,44 @@ Both `registry.yaml` and `initiatives/<id>/context-map.md` describe what an init
 | `initiatives/<id>/context-map.md` | Humans and reviewing agents | Narrative explaining *why* those roles, domains, projects, memory items, and sources are relevant, and noting items that were considered and excluded. |
 
 The compiler reads only `registry.yaml`. `context-map.md` is included verbatim into the pack's `## Initiative Context` section.
+
+#### What makes a good `context-map.md`
+
+The map's job is to make multi-file linkages legible. Examples anchored in
+`docs/trials/2026-05-13-pr9-review-trial.md`.
+
+**Positive example.**
+A map paragraph that names two or more other pack files so the reviewer
+reads them together. From the trial (B-pm 1), this shape revealed an
+internal contradiction between `constraints.md` and `decisions.md` that
+neither file alone showed:
+
+```md
+This initiative depends on the cli project (`projects/cli.md`) and on the
+v0.1 spec's command surface (`constraints.md` §Technical). It revises
+two earlier decisions, so `decisions.md` must be read together with
+`constraints.md` — they describe overlapping scope and any divergence
+between them is a bug.
+```
+
+**Negative example.**
+A map that only restates `registry.yaml`. Trial reviewers gained no extra
+signal from this shape; it duplicated machine information without adding
+narrative:
+
+```md
+This initiative includes the engineer role, the cli project, and the
+finish-line memory section.
+```
+
+**Heuristics.**
+
+- Each paragraph should name at least two other pack files and say *why
+  they should be read together*, not just *that they are included*.
+- Note what was *considered and excluded*, not only what is included. The
+  exclusion list is often the more informative half.
+- If a paragraph could be deleted without losing information that is not
+  already in `registry.yaml`, delete it.
 
 ### 8.2 `registry.sources` vs `.contextspec/sources/`
 
@@ -685,6 +798,9 @@ v0.1 is acceptable when a user can:
 5. Generate Codex `AGENTS.md` instructions.
 6. Inspect all generated files in git.
 7. Understand how personal knowledge bases are referenced without being imported wholesale.
+8. Verify byte-stability: regenerating a pack from
+   `examples/improve-team-invite-conversion/` under a fixed `generated_at`
+   produces a file byte-identical to the committed fixture.
 
 ---
 
@@ -734,3 +850,13 @@ Clarified eight ambiguities surfaced while preparing the first hand-written exam
 - §7.2 Pack Output Location: packs land in `initiatives/<name>/packs/<role>-<task>.md`; default task is `review`; packs are committed by default.
 - §8.1: clarified that `context-map.md` is human narrative, while `registry.yaml > initiatives` is the machine-readable mapping consumed by the compiler.
 - §8.2: clarified that `registry.yaml > sources` (external roots) and `.contextspec/sources/*.md` (curated reference notes) are different objects.
+
+### 2026-05-13 — Semantic guidance for narrative pack sections
+
+- §5.2.1 added: positive and negative examples plus four heuristics for
+  `## Review Checklist` and `## Output Contract`. Anchored in the
+  end-to-end review trial at `docs/trials/2026-05-13-pr9-review-trial.md`.
+- §8.1 sub-section added: positive and negative examples plus three
+  heuristics for `context-map.md`.
+- §12 acceptance criterion #8 added: byte-stable regeneration against the
+  committed example fixture is now part of the acceptance contract.
