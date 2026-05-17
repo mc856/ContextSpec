@@ -192,10 +192,14 @@ finalized in Phase 2:
 
 ## Inputs and outputs on disk
 
-- `docs/trials/.work/pr9-diff.patch`
-- `docs/trials/.work/pack-engineer.md`
-- `docs/trials/.work/pack-pm.md`
+These three files were the trial's inputs:
 
-These are kept in `.work/` rather than alongside the trial doc because the
-packs contain `generated_at` and will drift on regeneration; the trial
-doc above quotes only stable lines.
+- `docs/trials/.work/pr9-diff.patch` — `git show 5fed5fd`
+- `docs/trials/.work/pack-engineer.md` — `contextspec pack --role engineer --initiative finish-line --task review`
+- `docs/trials/.work/pack-pm.md` — `contextspec pack --role pm --initiative finish-line --task review`
+
+They are gitignored (`docs/trials/.work/`) rather than committed: packs
+contain `generated_at` and will drift on regeneration, and the diff is
+re-derivable from the commit hash. The trial doc above quotes only stable
+lines, so the conclusions stand without the raw inputs. To reproduce
+locally, run the three commands above from the repo root.

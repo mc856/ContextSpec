@@ -233,3 +233,8 @@ coverage/
 # derivatives of the registry + spec; packs are per-task output.
 .contextspec/initiatives/*/packs/
 !.contextspec/initiatives/*/packs/.gitkeep
+
+# Trial work directories — raw inputs (packs with generated_at, diffs)
+# referenced by docs/trials/<date>-<slug>.md but not byte-stable.
+docs/trials/*/.work/
+docs/trials/.work/
