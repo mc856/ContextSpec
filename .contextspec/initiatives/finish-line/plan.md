@@ -8,7 +8,7 @@ Four small phases, each independently revertible. Phases 1 and 2 are already in 
 - experiment: founder uses `/engineer-handoff finish-line` once and writes down whether the resulting pack would have replaced a hand-written prompt.
 - decision rule: if the founder would not have used the pack, treat it as falsifying hypothesis 1 and pause to fix the templates before continuing.
 
-## Phase 2 — `contextspec validate` (active)
+## Phase 2 — `contextspec validate` (shipped)
 
 - change: implement `contextspec validate` (deferred command from §9.1, promoted by this initiative). Checks: every `roles.<id>.file` exists; every `<role>.includes`, `<domain>.includes`, `<project>.includes` resolve; every initiative's `path` exists; every `source://` reference passes its registry's include/exclude; pack files in `packs/` either have a matching live source set or are flagged stale.
 - experiment: run `validate` against the repo's `.contextspec/` and against the example fixture; assert green on both.
@@ -17,7 +17,7 @@ Four small phases, each independently revertible. Phases 1 and 2 are already in 
 ## Phase 3 — Publish to npm
 
 - change: prepare for `npm publish` — verify `package.json` `name` is available, add `prepublishOnly` script, ensure `dist/` and `bin/` are in `files`, write a short CHANGELOG.md anchored at v0.1.0. Publish manually for the first release; automate later.
-- experiment: do a dry-run `npm publish --dry-run` and inspect the tarball.
+- experiment: do a dry-run `npm publish --dry-run` and inspect the tarball that would actually ship, including publish-time lifecycle hooks.
 - decision rule: if the package name is taken, scope under `@contextspec/cli` and update README + AGENTS.md template.
 
 ## Phase 4 — CI

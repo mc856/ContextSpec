@@ -37,3 +37,9 @@ Initiative-scoped decisions that bind the rest of `finish-line`.
 - decision: keep `package.json.name` as `contextspec`.
 - alternative: switch now to `@contextspec/cli`. Rejected — a live npm registry check on 2026-05-18 returned `404 Not Found` for both `contextspec` and `@contextspec/cli`, so there is no current name collision forcing a scoped package.
 - impact: no README or AGENTS template rename is needed for Phase 3; the remaining publish work is manual `npm publish` plus install-path verification.
+
+## 2026-05-18 — Phase 3 publish verification uses `npm publish --dry-run`, not metadata-only checks
+
+- decision: treat `npm publish --dry-run --json` as the canonical Phase 3 verification path and keep it covered by `test/package.test.ts`.
+- alternative: stop at asserting `package.json.files` / `prepublishOnly`, or use `npm pack --dry-run` only. Rejected — metadata-only tests miss packlist regressions, and `npm pack` does not exercise the publish-time lifecycle hook that Phase 3 is explicitly hardening.
+- impact: release-hardening coverage now checks both the shipped file list and that the publish hook actually runs, matching the plan's publish experiment more closely.
