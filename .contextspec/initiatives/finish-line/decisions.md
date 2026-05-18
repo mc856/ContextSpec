@@ -43,3 +43,15 @@ Initiative-scoped decisions that bind the rest of `finish-line`.
 - decision: treat `npm publish --dry-run --json` as the canonical Phase 3 verification path and keep it covered by `test/package.test.ts`.
 - alternative: stop at asserting `package.json.files` / `prepublishOnly`, or use `npm pack --dry-run` only. Rejected — metadata-only tests miss packlist regressions, and `npm pack` does not exercise the publish-time lifecycle hook that Phase 3 is explicitly hardening.
 - impact: release-hardening coverage now checks both the shipped file list and that the publish hook actually runs, matching the plan's publish experiment more closely.
+
+## 2026-05-18 — CI lint step uses TypeScript no-emit checking
+
+- decision: define `npm run lint` as `tsc -p tsconfig.json --noEmit` and use that in GitHub Actions.
+- alternative: add ESLint before v0.1. Rejected — Phase 4 needs a lightweight CI gate for a small TypeScript-only CLI, and introducing another tool plus config would add setup surface without changing the release risk materially.
+- impact: CI now has distinct static-check, build, and test phases without adding new dependencies; a richer lint stack can still be added later without changing the workflow shape.
+
+## 2026-05-18 — Phase 4 repo-side verification asserts workflow behavior, not file existence alone
+
+- decision: keep the CI workflow files and `test/ci.test.ts` landing together, and make the test assert step ordering plus release auth/config shape.
+- alternative: rely on code review of YAML files or only assert that the workflow files exist and mention `npm publish`. Rejected — that leaves easy regressions undetected, such as publishing before tests or dropping the npm token wiring while the static existence checks still pass.
+- impact: local verification for Phase 4 now checks the concrete repo-side contract we can enforce offline, while the synthetic-failure PR remains a separate acceptance item that still needs a live GitHub run.

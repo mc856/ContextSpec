@@ -34,6 +34,6 @@ Note: `initiatives/<id>/packs/` remains generated output. The live dogfood test 
 
 ## Phase 4 — CI
 
-- [ ] `.github/workflows/test.yml`: lint + build + test on Node 20 and 22, ubuntu-latest, on PR + push to main
-- [ ] `.github/workflows/release.yml`: on tag `v*.*.*`, build + test + `npm publish` with `NODE_AUTH_TOKEN`
+- [x] `.github/workflows/test.yml`: lint + build + test on Node 20 and 22, ubuntu-latest, on PR + push to main
+- [x] `.github/workflows/release.yml`: on tag `v*.*.*`, build + test + `npm publish` with `NODE_AUTH_TOKEN`
 - [ ] verify with a synthetic-failure PR
