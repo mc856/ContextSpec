@@ -1,6 +1,6 @@
 # Plan
 
-Four small phases, each independently revertible. Phase 1 is already in the repo; Phase 2 is the active implementation slice.
+Four small phases, each independently revertible. Phases 1 and 2 are already in the repo; Phase 3 is the active implementation slice.
 
 ## Phase 1 — Dogfood (shipped)
 

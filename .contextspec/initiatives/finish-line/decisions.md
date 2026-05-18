@@ -31,3 +31,9 @@ Initiative-scoped decisions that bind the rest of `finish-line`.
 - decision: don't pre-claim the name. Verify availability during Phase 3 and decide between `contextspec` and `@contextspec/cli` then.
 - alternative: claim the name now to avoid risk. Rejected — pre-claiming a name without publishing pollutes npm namespace and is mildly antisocial. The cost of renaming README + AGENTS.md template if claimed-elsewhere is small.
 - impact: README and AGENTS.md template currently say `contextspec`; one find-and-replace if we move to a scoped name.
+
+## 2026-05-18 — keep the unscoped `contextspec` package name for v0.1.0
+
+- decision: keep `package.json.name` as `contextspec`.
+- alternative: switch now to `@contextspec/cli`. Rejected — a live npm registry check on 2026-05-18 returned `404 Not Found` for both `contextspec` and `@contextspec/cli`, so there is no current name collision forcing a scoped package.
+- impact: no README or AGENTS template rename is needed for Phase 3; the remaining publish work is manual `npm publish` plus install-path verification.
