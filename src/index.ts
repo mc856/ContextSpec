@@ -46,3 +46,8 @@ export type {
   ValidateResult,
   ValidationIssue,
 } from './validate.js';
+export { runValidateCommand } from './validateCommand.js';
+export type {
+  RunValidateCommandOptions,
+  RunValidateCommandResult,
+} from './validateCommand.js';

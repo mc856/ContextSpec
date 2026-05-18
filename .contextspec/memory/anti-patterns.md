@@ -25,3 +25,9 @@ Append-only. Each entry: short title, one-paragraph case, and the rule it taught
 **Case.** First sketch of `generate codex` would have written `AGENTS.md` from a fixed template every run. AGENTS.md is a shared surface — humans add team rules, internal coding conventions, links. A whole-file rewrite would clobber that on every regeneration.
 
 **Rule.** Any generator that writes to a file the user also writes to must own only a marked block of that file (HTML comments work in Markdown), preserve everything outside the markers, and be byte-stable when only the managed block is in scope. Tested on insertion (no markers yet), update (markers present), and idempotent re-run.
+
+## 2026-05-18 — Letting parser stack traces escape from a user-facing CLI
+
+**Case.** `contextspec validate` originally loaded `registry.yaml` directly inside the CLI action. Missing-file and semantic validation failures printed clean one-line diagnostics, but malformed YAML bypassed that contract and dumped the underlying `yaml` parser stack trace to the terminal. The command was technically failing, but it violated the "concise, user-correctable output" expectation that Phase 2 acceptance depends on.
+
+**Rule.** User-facing CLI commands should treat config parsing as an error boundary, not just the business-logic validator. Wrap config loading in a command-level helper that converts parser failures into a single actionable line and reuse that helper in tests so the formatting contract is enforced alongside the exit code.

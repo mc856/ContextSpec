@@ -22,10 +22,10 @@ When you change architecture, update both this doc and `.contextspec/initiatives
         ┌──────────┬──────┬─────────────┬─────────────┬─────────────┬─────────────┐
         │          │      │             │             │             │             │
       init      create  validate      compile       generate      generate      registry
-       .ts    Initiative   .ts          .ts          Claude.ts      Codex.ts      .ts
+       .ts    Initiative Command.ts      .ts          Claude.ts      Codex.ts      .ts
         │         .ts      │             │              │              │
-   templates.ts    │    compile.ts    resolve.ts    registry.ts    (none)
-                   │    sources.ts       │
+   templates.ts    │   validate.ts    resolve.ts    registry.ts    (none)
+                   │    registry.ts      │
               templates.ts               route.ts
               registry.ts                sources.ts
                                           registry.ts
@@ -37,7 +37,7 @@ When you change architecture, update both this doc and `.contextspec/initiatives
 
 | Module | Lines |
 |---|---|
-| `cli.ts` | 286 |
+| `cli.ts` | 269 |
 | `compile.ts` | 179 |
 | `createInitiative.ts` | 182 |
 | `generateClaude.ts` | 132 |
@@ -50,8 +50,9 @@ When you change architecture, update both this doc and `.contextspec/initiatives
 | `sources.ts` | 78 |
 | `templates.ts` | 395 |
 | `validate.ts` | 238 |
+| `validateCommand.ts` | 57 |
 
-Templates dominate by line count but contain no logic. The six real workhorses are `compile`, `resolve`, `validate`, `createInitiative`, `cli`, `generateClaude`.
+Templates dominate by line count but contain no logic. The validate surface is now split between `validate` (core checks) and `validateCommand` (CLI-safe orchestration).
 
 ---
 
@@ -139,11 +140,11 @@ Templates dominate by line count but contain no logic. The six real workhorses a
 
 ---
 
-### `src/validate.ts`
+### `src/validate.ts` + `src/validateCommand.ts`
 
-**Purpose.** Validate that a `.contextspec/` tree is internally consistent before a user generates or reviews packs.
+**Purpose.** Validate that a `.contextspec/` tree is internally consistent before a user generates or reviews packs, and provide a CLI-safe wrapper that turns registry-load failures into concise user-facing diagnostics.
 
-**Public API.** `validateContextSpec(opts) -> ValidateResult` plus `ValidationIssue`.
+**Public API.** `validateContextSpec(opts) -> ValidateResult` plus `ValidationIssue`; `runValidateCommand(opts) -> { exitCode }`.
 
 **Spec sections.** §3.1 (path resolution), §4 (registry references), §5.4 / §5.5 (`source://` allow-listing), §5.7 rule 2 (`packs/` are generated output), and the `finish-line` initiative's Phase 2 acceptance.
 
@@ -153,8 +154,9 @@ Templates dominate by line count but contain no logic. The six real workhorses a
 - `--strict` enables stale-pack checks. This is intentionally opt-in because committed example packs may lag the live sources; surfacing that drift is useful, but too noisy for the default "is my registry sane?" pass.
 - Stale-pack detection compares the committed pack frontmatter `sources` list against a freshly compiled pack for the same `role` / `task` / `initiative`. We compare source sets, not full bytes, so `generated_at` churn doesn't matter.
 - Issues are returned as structured `{ key, path?, message }` objects, but CLI output is one line per issue with no stack traces. The human-facing contract is concise diagnostics first.
+- The CLI-facing wrapper catches malformed `registry.yaml` errors from `loadRegistry()` and rewrites them as a single `error: failed to load ...` line instead of leaking a parser stack trace. This keeps the Phase 2 acceptance contract true even on broken YAML.
 
-**Tests.** `validate.test.ts` covers green paths for the example fixture and live dogfood, a missing referenced file, and strict-mode stale-pack detection.
+**Tests.** `validate.test.ts` covers green paths for the example fixture and live dogfood, a missing referenced file, an invalid `source://` link, an unknown initiative role attachment, strict-mode stale-pack detection, and malformed-registry CLI formatting.
 
 **Open questions.**
 - Should strict mode also surface `compilePack` warnings (for example unrouted files) as validation issues, or is that a separate linting concern?
@@ -389,9 +391,9 @@ All "wrote X" / "warning: Y" goes to stderr. Pack content (when `--stdout`) goes
 | `test/init.test.ts` | 208 | 12 | Sandbox-based: each test creates a fresh `mkdtempSync` directory. |
 | `test/generate.test.ts` | 169 | 8 | Sandbox-based, plus snapshot helpers for re-run idempotency. |
 | `test/dogfood.test.ts` | (in PR #9, ~80) | 5 | Live-fixture: compiles a pack against the repo's own `.contextspec/`. |
-| `test/validate.test.ts` | 128 | 4 | Hybrid: validates the example fixture, the live dogfood, and temp-cloned tampered fixtures. |
+| `test/validate.test.ts` | 233 | 7 | Hybrid: validates the example fixture, the live dogfood, temp-cloned tampered fixtures, and CLI-safe malformed-registry output. |
 
-Total: 45 cases. Run time under 1 second locally.
+Total: 48 cases. Run time under 1 second locally.
 
 ### Patterns
 

@@ -7,7 +7,7 @@ import { generateClaude } from './generateClaude.js';
 import { generateCodex } from './generateCodex.js';
 import { initContextSpec } from './init.js';
 import { loadRegistry } from './registry.js';
-import { validateContextSpec } from './validate.js';
+import { runValidateCommand } from './validateCommand.js';
 
 /**
  * Allow the spec-form `contextspec create initiative <name>` in addition
@@ -141,31 +141,14 @@ cli
   .option('--quiet', 'suppress success output', { default: false })
   .action(async (options: ValidateCmdOptions) => {
     const projectRoot = resolveCwd(options.cwd);
-    const contextRoot = resolvePath(projectRoot, '.contextspec');
-    const registryPath = resolvePath(contextRoot, 'registry.yaml');
-
-    if (!existsSync(registryPath)) {
-      console.error(
-        `error: no registry.yaml found at ${registryPath}. ` +
-          `Run \`contextspec init\` first, or pass --cwd.`,
-      );
-      process.exit(1);
-    }
-
-    const registry = loadRegistry(registryPath);
-    const result = validateContextSpec({
-      registry,
-      contextRoot,
+    const result = runValidateCommand({
+      projectRoot,
       strict: options.strict ?? false,
+      quiet: options.quiet ?? false,
+      writeLine: (line) => console.error(line),
     });
-
-    if (result.issues.length > 0) {
-      for (const issue of result.issues) console.error(issue.message);
-      process.exit(1);
-    }
-
-    if (!options.quiet) {
-      console.error(`validated ${contextRoot}`);
+    if (result.exitCode !== 0) {
+      process.exit(result.exitCode);
     }
   });
 

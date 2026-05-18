@@ -8,7 +8,11 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve as resolvePath } from 'node:path';
-import { loadRegistry, validateContextSpec } from '../src/index.js';
+import {
+  loadRegistry,
+  runValidateCommand,
+  validateContextSpec,
+} from '../src/index.js';
 
 const EXAMPLE_PROJECT_ROOT = resolvePath(
   __dirname,
@@ -86,6 +90,75 @@ describe('validateContextSpec', () => {
     expect(result.issues[0]!.message).toContain('projects/web-app.md');
   });
 
+  it('reports an invalid source link with the offending file path', () => {
+    const dir = cloneExample();
+    cleanup.push(dir);
+
+    const contextMapPath = resolvePath(
+      dir,
+      '.contextspec',
+      'initiatives',
+      'improve-team-invite-conversion',
+      'context-map.md',
+    );
+    const original = readFileSync(contextMapPath, 'utf8');
+    writeFileSync(
+      contextMapPath,
+      original.replace(
+        'source://personal_knowledge_base/Customers/2025-Q3-onboarding-review.md',
+        'source://personal_knowledge_base/Daily/secret.md',
+      ),
+    );
+
+    const contextRoot = resolvePath(dir, '.contextspec');
+    const registry = loadRegistry(resolvePath(contextRoot, 'registry.yaml'));
+    const result = validateContextSpec({
+      registry,
+      contextRoot,
+    });
+
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        key: 'initiatives/improve-team-invite-conversion/context-map.md',
+        path: 'initiatives/improve-team-invite-conversion/context-map.md',
+      }),
+    );
+    expect(
+      result.issues.some((issue) => issue.message.includes('invalid source link')),
+    ).toBe(true);
+  });
+
+  it('reports an initiative attachment to an unknown role', () => {
+    const dir = cloneExample();
+    cleanup.push(dir);
+
+    const registryPath = resolvePath(dir, '.contextspec', 'registry.yaml');
+    const original = readFileSync(registryPath, 'utf8');
+    writeFileSync(
+      registryPath,
+      original.replace(
+        '    roles:\n      - pm\n      - growth\n      - engineer\n',
+        '    roles:\n      - pm\n      - growth\n      - engineer\n      - qa\n',
+      ),
+    );
+
+    const contextRoot = resolvePath(dir, '.contextspec');
+    const registry = loadRegistry(resolvePath(contextRoot, 'registry.yaml'));
+    const result = validateContextSpec({
+      registry,
+      contextRoot,
+    });
+
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        key: 'initiatives.improve-team-invite-conversion.roles[3]',
+      }),
+    );
+    expect(
+      result.issues.some((issue) => issue.message.includes("unknown role 'qa'")),
+    ).toBe(true);
+  });
+
   it('flags a stale committed pack when its source set no longer matches live inputs', () => {
     const dir = cloneExample();
     cleanup.push(dir);
@@ -124,5 +197,37 @@ describe('validateContextSpec', () => {
     expect(
       result.issues.some((issue) => issue.message.includes('stale')),
     ).toBe(true);
+  });
+});
+
+describe('runValidateCommand', () => {
+  const cleanup: string[] = [];
+
+  beforeEach(() => {
+    while (cleanup.length > 0) {
+      const dir = cleanup.pop()!;
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('returns a concise error for malformed registry yaml', () => {
+    const dir = cloneExample();
+    cleanup.push(dir);
+
+    const registryPath = resolvePath(dir, '.contextspec', 'registry.yaml');
+    writeFileSync(registryPath, 'version: [\n');
+
+    const lines: string[] = [];
+    const result = runValidateCommand({
+      projectRoot: dir,
+      writeLine: (line) => lines.push(line),
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toContain('error:');
+    expect(lines[0]).toContain('registry.yaml');
+    expect(lines[0]).not.toContain('YAMLParseError:');
+    expect(lines[0]).not.toContain('at Composer.onError');
   });
 });

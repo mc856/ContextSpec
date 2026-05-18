@@ -20,10 +20,10 @@ Note: `initiatives/<id>/packs/` remains generated output. The live dogfood test 
 
 ## Phase 2 — `contextspec validate`
 
-- [ ] `src/validate.ts`: gather all referenced paths from registry; check existence; check `source://` against include/exclude; flag stale packs
-- [ ] CLI subcommand `contextspec validate` with `--strict` and `--quiet`
-- [ ] tests: validate against the example fixture (must pass) + against a tampered fixture with a missing file (must fail with the right message)
-- [ ] update README usage section
+- [x] `src/validate.ts`: gather all referenced paths from registry; check existence; check `source://` against include/exclude; flag stale packs
+- [x] CLI subcommand `contextspec validate` with `--strict` and `--quiet`
+- [x] tests: validate against the example fixture (must pass) + against a tampered fixture with a missing file (must fail with the right message)
+- [x] update README usage section
 
 ## Phase 3 — Publish
 
