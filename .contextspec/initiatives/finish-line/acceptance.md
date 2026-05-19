@@ -29,6 +29,8 @@ Observable outcomes. Each phase is independently shippable.
 - A PR that introduces a failing test cannot be merged into `main` (CI red).
 - A push of tag `v0.1.0` produces a published artifact on npm, automatically.
 
+Current status: the current worktree now has offline evidence for the first bullet (`test/ci.test.ts` + `test/ci-synthetic-failure.test.ts`), but the actual GitHub-side PR run and npm publish still require a real remote environment and remain open.
+
 ## Cross-cutting
 
 - The CLI continues to compile cleanly under `tsc` strict mode with no `any`-using ergonomic shortcuts.

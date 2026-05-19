@@ -26,4 +26,4 @@ Four small phases, each independently revertible. Phases 1 and 2 are already in 
 - change: GitHub Actions on PRs running `npm ci && npm run build && npm test` on Node 20 + 22, Linux only. A separate workflow runs on tag `v*.*.*`: build, test, and `npm publish` with `NODE_AUTH_TOKEN`.
 - experiment: open a throwaway PR that breaks a test; verify CI catches it; verify `main` is green.
 - decision rule: if the build matrix takes more than 2 minutes per leg, drop to single-Node and revisit when there's a real reason for multi-version.
-- status: the workflow files and repo-side tests are in the worktree; synthetic-failure verification is still pending until a real PR is opened.
+- status: the current worktree carries the workflow files plus offline CI evidence: `test/ci.test.ts` asserts the repo-side workflow contract, and `test/ci-synthetic-failure.test.ts` proves locally that an injected failing test drives the shipped `npm test` path red. The live GitHub acceptance item still remains open until a real throwaway PR is pushed and observed failing in Actions.

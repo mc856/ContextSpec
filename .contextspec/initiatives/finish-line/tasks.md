@@ -36,4 +36,5 @@ Note: `initiatives/<id>/packs/` remains generated output. The live dogfood test 
 
 - [x] `.github/workflows/test.yml`: lint + build + test on Node 20 and 22, ubuntu-latest, on PR + push to main
 - [x] `.github/workflows/release.yml`: on tag `v*.*.*`, build + test + `npm publish` with `NODE_AUTH_TOKEN`
+- [x] add repo-side synthetic-failure simulation coverage so a local test proves the shipped CI test suite goes red when a failing test is introduced
 - [ ] verify with a synthetic-failure PR

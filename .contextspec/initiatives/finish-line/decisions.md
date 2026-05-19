@@ -55,3 +55,9 @@ Initiative-scoped decisions that bind the rest of `finish-line`.
 - decision: keep the CI workflow files and `test/ci.test.ts` landing together, and make the test assert step ordering plus release auth/config shape.
 - alternative: rely on code review of YAML files or only assert that the workflow files exist and mention `npm publish`. Rejected — that leaves easy regressions undetected, such as publishing before tests or dropping the npm token wiring while the static existence checks still pass.
 - impact: local verification for Phase 4 now checks the concrete repo-side contract we can enforce offline, while the synthetic-failure PR remains a separate acceptance item that still needs a live GitHub run.
+
+## 2026-05-19 — offline synthetic-failure simulation is evidence, not acceptance
+
+- decision: add `test/ci-synthetic-failure.test.ts` to simulate a throwaway failing test in a temporary repo copy, temporarily park the self-referential simulation test to avoid recursion, and then run the shipped `npm test` command so the red-path evidence follows the same local entrypoint CI uses.
+- alternative: mark Phase 4 complete based only on the workflow YAML plus `test/ci.test.ts`, keep using a hand-assembled test-file list, or attempt to fake a PR result without GitHub tooling/auth. Rejected — the first leaves the red-path unexercised, the second drifts from the actual CI command path, and the third would blur the line between local evidence and actual remote verification.
+- impact: the current worktree now carries the strongest offline proof available in this environment while still matching the repo's real `npm test` entrypoint as closely as possible; the remaining live GitHub action and npm release checks stay explicitly open.
