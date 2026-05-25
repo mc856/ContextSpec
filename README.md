@@ -118,6 +118,10 @@ For a reviewer's map of the v0.1 implementation — module-by-module purpose, de
 
 `generate claude` writes idempotent slash commands per role (`pm-review`, `growth-review`, `engineer-handoff`, `engineer-review`, plus `context-status` and `context-retro`). `generate codex` writes a managed `## ContextSpec` section into `AGENTS.md`, marked with HTML comments so user-authored content above and below it survives subsequent regenerations.
 
+## User guide
+
+For an end-to-end walkthrough of what you can do and how — setup, the daily review/handoff/retro loops, authoring tips, and a command reference — see [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) (中文：[`docs/USER_GUIDE.zh-CN.md`](docs/USER_GUIDE.zh-CN.md)).
+
 ## Planned v0.1
 
 - `.contextspec/` file protocol
