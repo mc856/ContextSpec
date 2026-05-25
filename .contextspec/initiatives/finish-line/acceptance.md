@@ -29,7 +29,7 @@ Observable outcomes. Each phase is independently shippable.
 - A PR that introduces a failing test cannot be merged into `main` (CI red).
 - A push of tag `v0.1.0` produces a published artifact on npm, automatically.
 
-Current status: the current worktree now has offline evidence for the first bullet (`test/ci.test.ts` + `test/ci-synthetic-failure.test.ts`), but the actual GitHub-side PR run and npm publish still require a real remote environment and remain open.
+Current status: Phase 3 is fully met — `contextspec@0.1.0` is published on npm and `npm i -g contextspec` is verified to place a working binary on PATH (2026-05-25). For Phase 4, offline evidence exists for CI behavior (`test/ci.test.ts` + `test/ci-synthetic-failure.test.ts`); the live GitHub-side synthetic-failure PR (CI red) is the only remaining open item. Note: the tag-based auto-publish bullet is intentionally not exercised for 0.1.0 — it was published manually, so pushing a `v0.1.0` tag would re-trigger `release.yml` and fail on the already-published version; tag-based release starts at the next version (and needs an `NPM_TOKEN` secret first).
 
 ## Cross-cutting
 

@@ -30,7 +30,7 @@ Note: `initiatives/<id>/packs/` remains generated output. The live dogfood test 
 - [x] verify `contextspec` package name on npm; if taken, switch to `@contextspec/cli` and update README + AGENTS.md template
 - [x] add `prepublishOnly` build hook; verify the real publish payload with `npm publish --dry-run` coverage in `test/package.test.ts`
 - [x] add `CHANGELOG.md` with v0.1.0 entry
-- [ ] manual `npm publish` for v0.1.0; verify install path with `npm i -g`
+- [x] manual `npm publish` for v0.1.0; verify install path with `npm i -g` — published 2026-05-25; `npm i -g contextspec` → working `contextspec/0.1.0` on PATH
 
 ## Phase 4 — CI
 
