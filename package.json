@@ -1,0 +1,60 @@
+{
+  "name": "contextspec",
+  "version": "0.1.0",
+  "description": "Portable role-context protocol for coding agents.",
+  "type": "module",
+  "author": "mc856",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mc856/ContextSpec.git"
+  },
+  "homepage": "https://github.com/mc856/ContextSpec#readme",
+  "bugs": {
+    "url": "https://github.com/mc856/ContextSpec/issues"
+  },
+  "bin": {
+    "contextspec": "bin/contextspec.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "keywords": [
+    "claude-code",
+    "contextspec",
+    "context",
+    "agent",
+    "ai",
+    "openspec"
+  ],
+  "license": "MIT"
+}
