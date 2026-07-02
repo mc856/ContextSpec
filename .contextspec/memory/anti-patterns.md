@@ -43,3 +43,9 @@ Append-only. Each entry: short title, one-paragraph case, and the rule it taught
 **Case.** `LENS_LIBRARY[id]` in `src/createRole.ts` with the user-supplied `id = 'constructor'` returned `Object.prototype.constructor` instead of `undefined`, and the "found a preset" branch crashed downstream. Any `Record<string, T>` indexed by user input has the same hole (`toString`, `hasOwnProperty`, …).
 
 **Rule.** Gate user-supplied keys with `Object.hasOwn(obj, key)` before indexing, or store the mapping in a `Map`. Test with prototype-key inputs (`constructor` is the canonical case).
+
+## 2026-07-03 — Cowork sandbox git commands leave a stale `index.lock` on the mounted repo
+
+**Case.** In a Cowork session, read-only git commands (`git status`, `git ls-files`) run in the sandbox VM against the repo mount. Git creates `.git/index.lock` to refresh the index, but the mount denies the unlink (`Operation not permitted`), so the lock survives the command. Every later `git add`/`git commit` on the host then fails with "Unable to create index.lock: File exists" until the user removes it by hand.
+
+**Rule.** Detect the host first: Cowork's shell is a Linux VM whose repo paths live under `/sessions/<name>/mnt/…` (Claude Code runs git natively on the machine — no such prefix, no problem). Inside Cowork, run every git command with optional locks disabled — `git --no-optional-locks status` or `GIT_OPTIONAL_LOCKS=0` in the environment — and prefer leaving all write operations (`add`/`commit`/`tag`) to the user's own terminal. If the lock error appears anyway, the fix is `rm -f .git/index.lock` after confirming no git process is running.

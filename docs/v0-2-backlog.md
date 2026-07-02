@@ -111,10 +111,10 @@ distinct from PM/engineer review (the evidence bar of
 - living reference at top level: `open-questions.md`,
   `v0-1-implementation-notes.md`, this backlog
 - public reference subdir: `decisions/` (ADRs)
-- internal subdir: `internal/` holds dated snapshots
+- internal subdir: `notes/` holds dated snapshots
   (`methodology-review-2026-05-12.md`,
   `solo-founder-fit-2026-05-17.md`,
-  `v0-1-validation-plan-2026-05-13.md`) and `internal/trials/`
+  `v0-1-validation-plan-2026-05-13.md`) and `notes/trials/`
 - gitignored: `private/` (local-only working notes, archived in
   `mc856/contextspec-archive`)
 

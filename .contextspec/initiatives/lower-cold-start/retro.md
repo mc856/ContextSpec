@@ -26,7 +26,7 @@ Phase 1 (`create-role` + QA preset) shipped in `e524469` + `c21e83a`, with revie
 - `qa` is now attached to this initiative (`registry.yaml`) so `reviews/qa.md` routes into future packs. `growth` remains excluded per decisions #6.
 - `constraints.md` / `principles.md` write-surface wording updated (review defect 3) — a hard-constraint change, recorded here per `constraints.md`'s own header.
 
-## Proposed memory updates (user confirmation required — not written)
+## Proposed memory updates (confirmed and applied 2026-07-02)
 
 For `memory/anti-patterns.md`:
 
