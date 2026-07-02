@@ -12,13 +12,13 @@ It is especially useful when one founder works across many roles and keeps hitti
 
 ## Status
 
-v0.1 has shipped: `contextspec@0.1.0` is on npm (2026-05-25) with CI green. The local file protocol and context pack compiler are implemented per [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md).
+v0.2.0 is on npm (2026-07-02) with CI green. The local file protocol and context pack compiler are implemented per [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md); v0.2 adds `create-role` with a curated QA preset. See [`CHANGELOG.md`](CHANGELOG.md).
 
 ```bash
 npm install -g contextspec
 ```
 
-The v0.2 cycle is distribution-first — interop with the OpenSpec ecosystem plus a small evidence-anchored feature kernel (`create-role` + QA preset). See [`docs/decisions/2026-06-11-v0-2-distribution-first.md`](docs/decisions/2026-06-11-v0-2-distribution-first.md).
+The v0.2 cycle is distribution-first — interop with the OpenSpec ecosystem plus a small evidence-anchored feature kernel (`create-role` + QA preset, shipped in 0.2.0). See [`docs/decisions/2026-06-11-v0-2-distribution-first.md`](docs/decisions/2026-06-11-v0-2-distribution-first.md).
 
 ## Product shape
 
@@ -74,7 +74,7 @@ raw knowledge -> curated knowledge -> structured context -> task context -> cont
 
 Raw knowledge stays in existing tools. ContextSpec stores reviewed, structured context and compiles only task-relevant context into packs. See [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md) for the full taxonomy and placement rules.
 
-## CLI (v0.1)
+## CLI
 
 ```bash
 # 1. Create a new .contextspec/ skeleton.
@@ -83,6 +83,11 @@ contextspec init
 # 2. Create an initiative and register it in registry.yaml.
 contextspec create initiative q2-onboarding-pulse \
   --domain onboarding --project web-app
+
+# 2b. Add a role from a curated preset (pm/growth/engineer/qa),
+#     a clone of an existing role, or a structured skeleton.
+contextspec create role qa
+contextspec create role reviewer --from engineer
 
 # 3. Compile a context pack for a role.
 contextspec pack --role engineer --initiative q2-onboarding-pulse --task review
@@ -132,11 +137,12 @@ For a reviewer's map of the v0.1 implementation — module-by-module purpose, de
 
 For an end-to-end walkthrough of what you can do and how — setup, the daily review/handoff/retro loops, authoring tips, and a command reference — see [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) (中文：[`docs/USER_GUIDE.zh-CN.md`](docs/USER_GUIDE.zh-CN.md)).
 
-## Shipped in v0.1
+## Shipped
 
 - `.contextspec/` file protocol
 - `registry.yaml` schema
-- PM, Growth, and Engineer role templates (QA preset lands in v0.2 via `create-role`)
+- PM, Growth, Engineer, and QA role templates
+- `create-role` with preset / clone / skeleton sources (0.2.0)
 - initiative templates
 - Markdown context pack generation
 - `validate` command (registry references, `source://` allow-listing, stale-pack checks)
