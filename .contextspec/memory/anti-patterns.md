@@ -31,3 +31,15 @@ Append-only. Each entry: short title, one-paragraph case, and the rule it taught
 **Case.** `contextspec validate` originally loaded `registry.yaml` directly inside the CLI action. Missing-file and semantic validation failures printed clean one-line diagnostics, but malformed YAML bypassed that contract and dumped the underlying `yaml` parser stack trace to the terminal. The command was technically failing, but it violated the "concise, user-correctable output" expectation that Phase 2 acceptance depends on.
 
 **Rule.** User-facing CLI commands should treat config parsing as an error boundary, not just the business-logic validator. Wrap config loading in a command-level helper that converts parser failures into a single actionable line and reuse that helper in tests so the formatting contract is enforced alongside the exit code.
+
+## 2026-06-12 — Piping a test command erases its exit code
+
+**Case.** The `lower-cold-start` dogfood-commit pipeline ran `npm test 2>&1 | grep …` to filter output. The pipeline's status is grep's, not the test runner's, so a red suite looked green to the invoking script and a failing dogfood assertion was committed once (caught and amended immediately; see the initiative retro).
+
+**Rule.** Never gate on a test command whose output is piped. Capture output to a file and check the runner's `$?` explicitly (`npm test > out.log 2>&1; status=$?`), or use `set -o pipefail` — and treat CI as the backstop, not the primary check.
+
+## 2026-06-12 — Plain-object `Record` lookups resolve prototype keys
+
+**Case.** `LENS_LIBRARY[id]` in `src/createRole.ts` with the user-supplied `id = 'constructor'` returned `Object.prototype.constructor` instead of `undefined`, and the "found a preset" branch crashed downstream. Any `Record<string, T>` indexed by user input has the same hole (`toString`, `hasOwnProperty`, …).
+
+**Rule.** Gate user-supplied keys with `Object.hasOwn(obj, key)` before indexing, or store the mapping in a `Map`. Test with prototype-key inputs (`constructor` is the canonical case).
