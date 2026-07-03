@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { cac } from 'cac';
 import { compilePack } from './compile.js';
@@ -263,7 +263,13 @@ cli
   });
 
 cli.help();
-cli.version('0.1.0');
+// Read the version from package.json (dist/cli.js sits one level below the
+// package root) so `--version` can never drift from the published version
+// again — 0.2.0 shipped reporting itself as 0.1.0 because this was a literal.
+const pkg = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+) as { version: string };
+cli.version(pkg.version);
 cli.parse(preprocessArgv(process.argv));
 
 function resolveCwd(cwd?: string): string {

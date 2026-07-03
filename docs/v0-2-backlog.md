@@ -46,6 +46,14 @@ compiler (H-06).
 
 ### Re-parked: `init --profile` / `--role` + archetype detection
 
+**New evidence (2026-07-03).** First real off-repo usage (two fresh
+workspaces set up for the founder's OSS-contribution and distribution
+tracks) hit the hardcoded role set immediately: both wanted role sets other
+than pm/growth/engineer, and cleanup required hand-editing `registry.yaml`
+to *remove* roles — there is `create-role` but no `remove-role`, so init's
+wrong guess is now the scariest remaining hand-edit (H-05). Two data points,
+same founder, but the first demand signal for role-set choice at init.
+
 Deferred from the 2026-06 initiative. **Preconditions recorded from the
 audit — do not re-propose without addressing all four:**
 

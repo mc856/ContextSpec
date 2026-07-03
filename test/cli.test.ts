@@ -52,4 +52,18 @@ describe('cli (spawned bin)', () => {
       true,
     );
   });
+
+  it('reports the package.json version, not a hardcoded literal', () => {
+    // Regression: 0.2.0 shipped with `--version` printing 0.1.0.
+    const pkg = JSON.parse(
+      readFileSync(
+        fileURLToPath(new URL('../package.json', import.meta.url)),
+        'utf8',
+      ),
+    ) as { version: string };
+    const out = execFileSync(process.execPath, [BIN, '--version'], {
+      encoding: 'utf8',
+    });
+    expect(out).toContain(pkg.version);
+  });
 });
