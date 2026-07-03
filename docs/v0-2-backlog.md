@@ -147,6 +147,22 @@ initiative when they appear.
 
 ---
 
+## Candidate 4 — workspace-level routing (observation, no design yet)
+
+**Observed 2026-07-03, first day of real off-repo usage.** The founder's
+habit is starting agent sessions at a multi-repo parent directory
+(`~/code/github/`), where per-repo slash commands never load. The working
+pattern that emerged: a hand-written router file at the parent (an
+AGENTS.md table: topic → repo → `pack --cwd <repo> …`) plus a host-level
+skill duplicating it. Nothing in the spec anticipates a workspace above
+the project. If this recurs for other users, candidates worth designing
+(not now): a `contextspec route` / workspace config, or
+`generate claude --global` emitting user-level commands with baked-in
+`--cwd`. Evidence bar: a second user reporting the same
+session-at-parent habit.
+
+---
+
 ## Process
 
 - Entries are candidate initiatives, ordered loosely by leverage.

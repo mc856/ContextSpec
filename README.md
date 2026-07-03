@@ -12,7 +12,7 @@ It is especially useful when one founder works across many roles and keeps hitti
 
 ## Status
 
-v0.2.0 is on npm (2026-07-02) with CI green. The local file protocol and context pack compiler are implemented per [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md); v0.2 adds `create-role` with a curated QA preset. See [`CHANGELOG.md`](CHANGELOG.md).
+v0.2 is on npm with CI green (current version: see badge above). The local file protocol and context pack compiler are implemented per [`CONTEXTSPEC_V0_1_SPEC.md`](CONTEXTSPEC_V0_1_SPEC.md); v0.2 adds `create-role` with a curated QA preset. See [`CHANGELOG.md`](CHANGELOG.md).
 
 ```bash
 npm install -g contextspec

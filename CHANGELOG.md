@@ -2,6 +2,10 @@
 
 All notable changes to ContextSpec will be documented in this file.
 
+## v0.2.1 — 2026-07-03
+
+- fix: `--version` now reads from `package.json` at runtime — 0.2.0 shipped reporting itself as 0.1.0 because the CLI version was a hardcoded literal. Regression-tested via the spawned-bin suite.
+
 ## v0.2.0 — 2026-07-02
 
 - add `contextspec create-role <id>` (spec form `create role <id>`): registers the role in `registry.yaml` with comments preserved, and writes `roles/<id>.md` from a curated preset, `--from <existing-role>` clone, or a structured skeleton fallback.
