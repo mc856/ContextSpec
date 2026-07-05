@@ -161,6 +161,11 @@ the project. If this recurs for other users, candidates worth designing
 `--cwd`. Evidence bar: a second user reporting the same
 session-at-parent habit.
 
+Strategy context for this candidate — the depth/breadth framing, the
+"status is a pack" form hypothesis, and agent write-permission tiers — is
+recorded in
+[`docs/notes/product-strategy-2026-07-03-attention-layer.md`](notes/product-strategy-2026-07-03-attention-layer.md).
+
 ---
 
 ## Process
